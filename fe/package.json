@@ -1,0 +1,34 @@
+{
+  "name": "cv-scanner",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "axios": "1.4.0",
+    "clsx": "1.2.1",
+    "form-data": "4.0.0",
+    "lucide-react": "^0.555.0",
+    "mammoth": "^1.11.0",
+    "next": "15.1.9",
+    "pdf-parse": "^1.1.1",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "react-dropzone": "14.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "15.1.9",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
