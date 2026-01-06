@@ -79,7 +79,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await api.post("/auth/refresh");
+        const res = await api.post("/api/auth/refresh");
 
         const newAccessToken = res.data?.accessToken;
         if (!newAccessToken) {

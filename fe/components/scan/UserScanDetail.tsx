@@ -20,7 +20,7 @@ export default function UserScanDetail() {
   const fetchScanDetail = async (id: string) => {
     setLoading(true);
     try {
-      const res = await api.get(`/matchings/${id}`);
+      const res = await api.get(`/api/matchings/${id}`);
       const data = res.data;
       setData(cleanJSON(data.responseBody));
     } catch (error) {

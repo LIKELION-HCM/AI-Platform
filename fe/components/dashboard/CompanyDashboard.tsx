@@ -20,7 +20,7 @@ export default function CompanyDashboard() {
   useEffect(() => {
     const fetchScans = async () => {
       try {
-        const res = await api.get("/matchings", {
+        const res = await api.get("/api/matchings", {
           params: {
             page: 0,
             size: 10,

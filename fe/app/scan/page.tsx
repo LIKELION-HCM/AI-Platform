@@ -131,7 +131,7 @@ export default function ScanPage() {
         responseBody: item,
       }));
 
-      const saveRes = await api.post("/matchings", payload);
+      const saveRes = await api.post("/api/matchings", payload);
 
       if (saveRes.status !== 200 || !Array.isArray(saveRes.data)) {
         toast.error("Save matching result failed");

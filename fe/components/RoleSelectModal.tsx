@@ -34,7 +34,7 @@ export default function RoleSelectModal({
 
     setLoading(true);
     try {
-      await api.post("/onboarding/choose-type", {
+      await api.post("/api/onboarding/choose-type", {
         userType: role === "company" ? "COMPANY" : "USER",
       });
 

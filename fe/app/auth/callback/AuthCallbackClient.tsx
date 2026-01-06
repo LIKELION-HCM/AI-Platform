@@ -29,7 +29,7 @@ export default function AuthCallbackClient() {
     setAccessToken(accessToken);
 
     api
-      .get("/me")
+      .get("/api/me")
       .then((res) => {
         const me = res.data;
         setUser(me);
