@@ -1,12 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const runtime = "nodejs";
 
-import { buildPrompt } from "@/lib/prompt";
+import { buildHrPrompt } from "@/lib/hrPrompt";
+import { buildUserPrompt } from "@/lib/userPrompt";
 import { cleanJSON } from "@/utils/clean";
 import mammoth from "mammoth";
 import { NextResponse } from "next/server";
 
+/* =========================
+   FILE PARSER
+========================= */
 async function parseFile(file: File) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -28,78 +31,194 @@ async function parseFile(file: File) {
   throw new Error("Unsupported file type");
 }
 
+/* =========================
+   ROUTE HANDLER
+========================= */
 export async function POST(req: Request) {
   try {
     const form = await req.formData();
-    const cv = form.get("cv") as File | null;
-    const jd = form.get("jd") as File | null;
 
-    if (!cv || !jd) {
+    const cvs = form.getAll("cvs") as File[];
+    const jds = form.getAll("jds") as File[];
+
+    const cvTextInput = form.get("cvText");
+    const jdTextInput = form.get("jdText");
+
+    const userType = String(form.get("userType") || "USER");
+
+    /* =========================
+       VALIDATION
+    ========================= */
+    if (
+      (!cvs.length && !cvTextInput) ||
+      (!jds.length && !jdTextInput)
+    ) {
       return NextResponse.json(
         { error: "CV or JD is missing" },
-        { status: 200 }
+        { status: 400 }
       );
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Missing OPENAI_API_KEY in environment" },
-        { status: 200 }
+        { error: "Missing OPENAI_API_KEY" },
+        { status: 500 }
       );
     }
 
-    // --- parse files ---
-    const cvText = await parseFile(cv);
-    const jdText = await parseFile(jd);
+    /* =========================
+       NORMALIZE INPUT → TEXT
+    ========================= */
+    const cvTexts: { name: string; text: string }[] = [];
+    const jdTexts: { name: string; text: string }[] = [];
 
-    // --- build prompt ---
-    const prompt = buildPrompt(cvText, jdText);
+    // ---- CV: FILE ----
+    if (cvs.length) {
+      const parsedCvs = await Promise.all(
+        cvs.map(async (f) => ({
+          name: f.name,
+          text: await parseFile(f),
+        }))
+      );
+      cvTexts.push(...parsedCvs);
+    }
 
-    // --- call OpenAI ---
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 1200,
-        temperature: 0.1,
-      }),
-    });
+    // ---- CV: TEXT ----
+    if (cvTextInput) {
+      cvTexts.push({
+        name: "Manual CV",
+        text: String(cvTextInput),
+      });
+    }
 
-    const data = await res.json().catch(() => null);
+    // ---- JD: FILE ----
+    if (jds.length) {
+      const parsedJds = await Promise.all(
+        jds.map(async (f) => ({
+          name: f.name,
+          text: await parseFile(f),
+        }))
+      );
+      jdTexts.push(...parsedJds);
+    }
 
-    if (!res.ok || !data?.choices?.[0]) {
+    // ---- JD: TEXT ----
+    if (jdTextInput) {
+      jdTexts.push({
+        name: "Manual JD",
+        text: String(jdTextInput),
+      });
+    }
+
+    /* =========================
+       SAFETY CHECK
+    ========================= */
+    if (cvTexts.length > 1 && jdTexts.length > 1) {
       return NextResponse.json(
-        { error: data?.error?.message || "OpenAI error" },
-        { status: 200 }
+        {
+          error:
+            "Only one side can contain multiple documents (CVs or JDs)",
+        },
+        { status: 400 }
       );
     }
 
-    const raw = data.choices[0].message.content || "";
+    /* =========================
+       ANALYZE
+    ========================= */
+    const results: any[] = [];
 
-    // --- clean JSON ---
-    let parsed;
-    try {
-      parsed = cleanJSON(raw);
-    } catch (e) {
-      parsed = { summary: raw, match_score: 0 };
+    // COMPANY: many CVs vs 1 JD
+    if (userType === "COMPANY") {
+      const jd = jdTexts[0];
+
+      for (const cv of cvTexts) {
+        const prompt = buildHrPrompt(cv.text, jd.text);
+        const parsed = await analyzeWithGPT(prompt, apiKey);
+
+        results.push({
+          cvName: cv.name,
+          jdName: jd.name,
+          ...parsed,
+        });
+      }
     }
 
-    parsed.match_score = Math.max(
-      0,
-      Math.min(100, Number(parsed.match_score) || 0)
-    );
+    // USER: 1 CV vs many JDs
+    else {
+      const cv = cvTexts[0];
 
-    return NextResponse.json(parsed, { status: 200 });
+      for (const jd of jdTexts) {
+        const prompt = buildUserPrompt(cv.text, jd.text);
+        const parsed = await analyzeWithGPT(prompt, apiKey);
+
+        results.push({
+          cvName: cv.name,
+          jdName: jd.name,
+          ...parsed,
+        });
+      }
+    }
+
+    return NextResponse.json({ results }, { status: 200 });
   } catch (err: any) {
+    console.error(err);
     return NextResponse.json(
       { error: err?.message || "Server error" },
-      { status: 200 }
+      { status: 500 }
     );
   }
+}
+
+/* =========================
+   OPENAI ANALYZER
+========================= */
+async function analyzeWithGPT(prompt: string, apiKey: string) {
+  const res = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      input: prompt,
+      text: {
+        format: { type: "json_object" },
+      },
+      max_output_tokens: 1200,
+      temperature: 0.1,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.error("OpenAI error:", data);
+    throw new Error(data.error?.message || "OpenAI request failed");
+  }
+
+  const output = data.output?.[0]?.content?.[0];
+
+  if (!output || output.type !== "output_text") {
+    console.error("Unexpected OpenAI response:", data);
+    throw new Error("Invalid OpenAI response format");
+  }
+
+  const raw = output.text;
+
+  let parsed;
+  try {
+    parsed = cleanJSON(raw);
+  } catch {
+    parsed = { summary: raw, match_score: 0 };
+  }
+
+  parsed.match_score = Math.max(
+    0,
+    Math.min(100, Number(parsed.match_score) || 0)
+  );
+
+  return parsed;
 }

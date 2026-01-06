@@ -1,39 +1,29 @@
 "use client";
 
-import { FileText, Upload } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
 
 interface DropzoneUploadProps {
-  onSubmit: (file: File | null) => void;
+  onSubmit: (files: File[]) => void;
   loading?: boolean;
-  file?: File | null;
+  files?: File[];
   label?: string;
   removable?: boolean;
   accentColor?: "blue" | "purple";
-  onUseSample?: () => void;
+  maxFiles?: number;
 }
 
 export default function DropzoneUpload({
   onSubmit,
   loading = false,
-  file,
+  files = [],
   label = "Upload file",
   removable = false,
   accentColor = "blue",
-  onUseSample,
+  maxFiles = 1,
 }: DropzoneUploadProps) {
-  const [preview, setPreview] = useState<string | null>(
-    file ? file.name : null
-  );
   const [error, setError] = useState<string | null>(null);
-
-  const bgColor =
-    accentColor === "blue" ? "bg-blue-900/20" : "bg-purple-900/20";
-  const borderColorActive =
-    accentColor === "blue" ? "border-blue-500" : "border-purple-500";
-  const textColor =
-    accentColor === "blue" ? "text-blue-400" : "text-purple-400";
 
   const mimeAccept = {
     "application/pdf": [".pdf"],
@@ -45,97 +35,79 @@ export default function DropzoneUpload({
 
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-      if (fileRejections.length > 0) {
-        const invalidFiles = fileRejections
-          .map((fr) => fr.file.name)
-          .join(", ");
-        setError(
-          `Invalid file format for: ${invalidFiles}. Only PDF/DOC/DOCX allowed.`
-        );
+      if (fileRejections.length) {
+        setError("Only PDF / DOC / DOCX files are allowed");
         return;
       }
-      if (acceptedFiles.length > 0) {
-        const f = acceptedFiles[0];
-        onSubmit(f);
-        setPreview(f.name);
-        setError(null);
+
+      const nextFiles = [...files, ...acceptedFiles].slice(0, maxFiles);
+
+      if (nextFiles.length > maxFiles) {
+        setError(`Maximum ${maxFiles} files allowed`);
+        return;
       }
+
+      onSubmit(nextFiles);
+      setError(null);
     },
-    [onSubmit]
+    [files, maxFiles, onSubmit]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: false,
     accept: mimeAccept,
-    disabled: loading,
+    multiple: maxFiles > 1,
+    disabled: loading || files.length >= maxFiles,
   });
 
-  const handleRemove = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onSubmit(null);
-    setPreview(null);
-    setError(null);
+  const removeFile = (index: number) => {
+    const next = files.filter((_, i) => i !== index);
+    onSubmit(next);
   };
 
   return (
     <div>
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed p-5 rounded-lg cursor-pointer transition-all ${
-          isDragActive ? borderColorActive : "border-gray-700"
-        } ${bgColor} hover:border-gray-600 ${
-          loading ? "opacity-50 cursor-not-allowed" : ""
-        }`}
+        className={`border-2 border-dashed p-5 rounded-lg cursor-pointer ${
+          isDragActive ? "border-blue-500" : "border-gray-700"
+        } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         <input {...getInputProps()} />
-        <div className="flex items-start gap-3">
+
+        <p className="text-sm font-semibold mb-2 text-gray-100">{label}</p>
+
+        {files.length === 0 && (
+          <p className="text-xs text-gray-400">
+            Drag & drop or click to upload ({maxFiles} max)
+          </p>
+        )}
+
+        {files.map((f, i) => (
           <div
-            className={`p-2 rounded ${
-              accentColor === "blue" ? "bg-blue-500/10" : "bg-purple-500/10"
-            }`}
+            key={i}
+            className="flex items-center justify-between text-sm text-gray-300 mt-2"
           >
-            {preview ? (
-              <FileText className={`w-5 h-5 ${textColor}`} />
-            ) : (
-              <Upload className={`w-5 h-5 ${textColor}`} />
+            <div className="flex items-center gap-2 min-w-0">
+              <FileText className="w-4 h-4 text-gray-400 shrink-0" />
+
+              <span
+                className="text-sm text-gray-200 truncate max-w-[360px]"
+                title={f.name}
+              >
+                {f.name}
+              </span>
+            </div>
+            {removable && (
+              <button onClick={() => removeFile(i)}>
+                <X className="w-4 h-4 text-red-400" />
+              </button>
             )}
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-200 mb-1">{label}</p>
-            {preview ? (
-              <p className="text-sm text-gray-300 font-medium">{preview}</p>
-            ) : (
-              <p className="text-xs text-gray-400">
-                Drag & drop file here, or click to select
-              </p>
-            )}
-            {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
-            {loading && (
-              <p className="text-xs text-gray-500 mt-2">
-                Uploading / Processing...
-              </p>
-            )}
-          </div>
-          {removable && preview && (
-            <button
-              type="button"
-              onClick={handleRemove}
-              className="text-red-400 text-xs font-medium hover:text-red-300 transition-colors"
-            >
-              Remove
-            </button>
-          )}
-        </div>
+        ))}
+
+        {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
       </div>
-      {onUseSample && !preview && (
-        <button
-          onClick={onUseSample}
-          className={`mt-2 text-xs ${textColor} hover:underline cursor-pointer transition-colors`}
-        >
-          Use sample {label.toLowerCase()}
-        </button>
-      )}
     </div>
   );
 }
