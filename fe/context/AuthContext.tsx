@@ -1,7 +1,7 @@
 "use client";
 
-import api from "@/lib/axios";
 import { createContext, useContext, useEffect, useState } from "react";
+import api from "@/lib/axios";
 
 export type User = {
   id: string;
@@ -9,14 +9,12 @@ export type User = {
   userType: "COMPANY" | "USER";
   registrationStatus: "NEW" | "COMPLETED";
   fullName: string;
-  emailVerified: boolean;
 };
 
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  setUser: (user: User | null) => void;
-  refreshUser: () => Promise<User | null>;
+  login: (token: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -26,19 +24,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshUser = async () => {
-    try {
-      const res = await api.get<User>("/api/me");
-      setUser(res.data);
-      return res.data;
-    } catch {
-      setUser(null);
-      return null;
-    }
+  const fetchMe = async () => {
+    const res = await api.get<User>("/api/me");
+    setUser(res.data);
+  };
+
+  const login = async (token: string) => {
+    localStorage.setItem("access_token", token);
+    await fetchMe();
   };
 
   const logout = () => {
-    localStorage.clear();
+    localStorage.removeItem("access_token");
     setUser(null);
     window.location.href = "/";
   };
@@ -50,20 +47,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    refreshUser()
-      .catch(() => {
-        localStorage.clear();
-        setUser(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    fetchMe()
+      .catch(() => logout())
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, setUser, refreshUser, logout }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

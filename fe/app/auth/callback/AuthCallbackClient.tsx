@@ -5,14 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import RoleSelectModal from "@/components/RoleSelectModal";
 import { useAuth } from "@/context/AuthContext";
-import { setAccessToken } from "@/lib/auth";
-import api from "@/lib/axios";
 import { toast } from "@/lib/useToast";
 
 export default function AuthCallbackClient() {
   const router = useRouter();
   const params = useSearchParams();
-  const { setUser, user } = useAuth();
+  const { login, user } = useAuth();
 
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -21,20 +19,14 @@ export default function AuthCallbackClient() {
     const accessToken = params.get("accessToken");
 
     if (!accessToken) {
-      toast.error("Login failed: missing access token");
+      toast.error("Login failed");
       router.replace("/");
       return;
     }
 
-    setAccessToken(accessToken);
-
-    api
-      .get("/api/me")
-      .then((res) => {
-        const me = res.data;
-        setUser(me);
-
-        if (me.registrationStatus === "NEW") {
+    login(accessToken)
+      .then(() => {
+        if (user?.registrationStatus === "NEW") {
           setShowRoleModal(true);
           return;
         }
@@ -49,13 +41,9 @@ export default function AuthCallbackClient() {
       .finally(() => {
         setLoading(false);
       });
-  }, [params, router, setUser]);
+  }, [params, router, login, user]);
 
   const handleRoleDone = () => {
-    if (!user?.userType) {
-      router.replace("/");
-      return;
-    }
     router.replace("/dashboard");
   };
 

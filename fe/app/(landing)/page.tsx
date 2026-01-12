@@ -21,12 +21,12 @@ export default function LandingPage() {
 
   return (
     <>
-      <section className="relative overflow-hidden min-h-[calc(100vh-118px)] bg-[#EDFFFF] flex items-center justify-center px-6 py-20">
+      <section className="relative overflow-hidden min-h-[calc(100vh-64px)] bg-[#EDFFFF] flex items-center justify-center px-6 py-20">
         {/* 🔵 Blur top-right */}
-        <div className="absolute right-[-187px] -top-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6]/45 blur-[420px]" />
+        <div className="absolute right-[-187px] -top-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
 
         {/* 🔵 Blur bottom-left */}
-        <div className="absolute left-[-187px] -bottom-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6]/45 blur-[420px]" />
+        <div className="absolute left-[-187px] -bottom-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full text-sm text-gray-700 mb-10 shadow-sm">
@@ -46,11 +46,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="relative bg-[#EDFFFF] border-t border-gray-200">
+      {/* <footer className="relative bg-[#EDFFFF] border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-4 text-center text-sm text-gray-500">
           © {new Date().getFullYear()} Resume Fit. All rights reserved.
         </div>
-      </footer>
+      </footer> */}
     </>
   );
 }

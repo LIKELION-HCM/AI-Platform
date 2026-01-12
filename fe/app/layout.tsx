@@ -1,3 +1,4 @@
+import AuthGuard from "@/AuthGuard";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthUIProvider } from "@/context/AuthUIContext";
 import "@/lib/dayjs";
@@ -26,7 +27,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <AuthProvider>
-          <AuthUIProvider>{children}</AuthUIProvider>
+          <AuthUIProvider>
+            <AuthGuard>{children}</AuthGuard>
+          </AuthUIProvider>
         </AuthProvider>
       </body>
     </html>

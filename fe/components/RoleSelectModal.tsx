@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 import { toast } from "@/lib/useToast";
 import { Check, FileSearch, User } from "lucide-react";
@@ -9,16 +8,14 @@ import ToastContainer from "./ToastContainer";
 
 type Role = "company" | "user";
 
-export default function RoleSelectModal({
-  open,
-  onDone,
-}: {
+type Props = {
   open: boolean;
   onDone: () => void;
-}) {
+};
+
+export default function RoleSelectModal({ open, onDone }: Props) {
   const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(false);
-  const { refreshUser } = useAuth();
 
   useEffect(() => {
     if (!open) {
@@ -38,12 +35,11 @@ export default function RoleSelectModal({
         userType: role === "company" ? "COMPANY" : "USER",
       });
 
-      await refreshUser();
       toast.success("Signup successful");
 
       setTimeout(() => {
         onDone();
-      }, 1500);
+      }, 1200);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to save role");
     } finally {
@@ -52,8 +48,9 @@ export default function RoleSelectModal({
   };
 
   return (
-    <>
+    <div>
       <ToastContainer />
+
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-gradient-to-br from-teal-100 to-blue-100" />
 
@@ -71,20 +68,18 @@ export default function RoleSelectModal({
             <button
               disabled={loading}
               onClick={() => setRole("company")}
-              className={`relative cursor-pointer p-8 rounded-2xl border-2 transition-all text-center ${
+              className={`relative p-8 rounded-2xl border-2 transition-all text-center ${
                 role === "company"
                   ? "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              {/* Checkmark */}
               {role === "company" && (
                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-8 h-8 bg-[#5ACFD6] rounded-full flex items-center justify-center shadow-md">
                   <Check className="w-5 h-5 text-white" strokeWidth={3} />
                 </div>
               )}
 
-              {/* Icon */}
               <div className="flex justify-center mb-4">
                 <div
                   className={`w-16 h-16 rounded-full flex items-center justify-center ${
@@ -112,7 +107,7 @@ export default function RoleSelectModal({
             <button
               disabled={loading}
               onClick={() => setRole("user")}
-              className={`relative cursor-pointer p-8 rounded-2xl border-2 transition-all text-center ${
+              className={`relative p-8 rounded-2xl border-2 transition-all text-center ${
                 role === "user"
                   ? "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
@@ -162,6 +157,6 @@ export default function RoleSelectModal({
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
