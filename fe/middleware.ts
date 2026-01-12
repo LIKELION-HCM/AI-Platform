@@ -8,15 +8,37 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get("access_token");
+  const { pathname } = req.nextUrl;
 
-  if (!token && req.nextUrl.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/", req.url));
+  // Check REFRESH TOKEN instead (which IS in httpOnly cookie)
+  const refreshToken = req.cookies.get("refresh_token")?.value;
+
+  // Protected routes
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/scan")) {
+    if (!refreshToken) {
+      console.log('[Middleware] No refresh token, redirecting to login');
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // Already logged in - redirect to dashboard
+  if (pathname === "/" || pathname === "/login" || pathname === "/signup") {
+    if (refreshToken) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/scan/:path*",
+    "/",
+    "/login",
+    "/signup"
+  ],
 };

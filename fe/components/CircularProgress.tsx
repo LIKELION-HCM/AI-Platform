@@ -10,7 +10,10 @@ export default function CircularProgress({
       <div
         className="absolute inset-0 rounded-full"
         style={{
-          background: `conic-gradient(from 0deg, rgb(20 184 166) 0%, rgb(99 102 241) ${score}%, rgb(229 231 235) ${score}% 100%)`,
+          background: `conic-gradient(
+            #FFB200 0% ${score}%,
+            #E5E7EB ${score}% 100%
+          )`,
         }}
       />
       <div className="absolute inset-2 rounded-full bg-white flex flex-col items-center justify-center shadow-inner">
