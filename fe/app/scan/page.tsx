@@ -99,7 +99,6 @@ export default function ScanPage() {
   const onAnalyze = async () => {
     setCvErrors({});
 
-    // Validate form if using manual CV mode
     if (cvMode === "form") {
       const errors = validateCvForm(cvForm);
       if (Object.keys(errors).length > 0) {

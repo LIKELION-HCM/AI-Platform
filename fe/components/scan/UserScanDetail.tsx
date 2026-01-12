@@ -39,8 +39,6 @@ export default function UserScanDetail() {
       <div className="max-w-7xl mx-auto space-y-6">
         {loading && <FullPageLoader text="Loading" />}
 
-        {/* <BackToDashboard /> */}
-
         <OverallCard overall={data?.overall} meta={data?.meta} />
 
         <div className="grid md:grid-cols-2 gap-6">

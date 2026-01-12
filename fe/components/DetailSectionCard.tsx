@@ -24,7 +24,6 @@ export default function DetailedSectionCard({
     );
   };
 
-  /* NEXT STEPS UI */
   if (isNextSteps(data)) {
     const renderList = (label: string, items?: string[]) => {
       if (!items || items.length === 0) return null;
@@ -59,11 +58,12 @@ export default function DetailedSectionCard({
     );
   }
 
-  /* NORMAL DETAIL SECTION */
   return (
     <div className="rounded-xl p-6 border-2 border-[#5ACFD6]">
       <div className="bg-[#B4F1F1] rounded-xl p-[10px] mb-6">
-        <h3 className="text-xl font-bold text-center text-[#176D81]">{title}</h3>
+        <h3 className="text-xl font-bold text-center text-[#176D81]">
+          {title}
+        </h3>
       </div>
 
       <div className="flex items-start gap-6 mb-6">

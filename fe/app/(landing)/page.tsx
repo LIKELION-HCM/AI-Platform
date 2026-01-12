@@ -22,10 +22,7 @@ export default function LandingPage() {
   return (
     <>
       <section className="relative overflow-hidden min-h-[calc(100vh-64px)] bg-[#EDFFFF] flex items-center justify-center px-6 py-20">
-        {/* 🔵 Blur top-right */}
         <div className="absolute right-[-187px] -top-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
-
-        {/* 🔵 Blur bottom-left */}
         <div className="absolute left-[-187px] -bottom-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">

@@ -16,7 +16,7 @@ export default function Header({ onLogin, onSignup }: HeaderProps) {
       <div className="max-w-8xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center">
           <h1 className="text-xl font-bold text-[#197083] tracking-tight">
-            RESUME FIT
+            TALENT FIT
           </h1>
         </div>
 

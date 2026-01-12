@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Resume Fit - AI-Powered CV-JD Matching",
+  title: "Talent Fit - AI-Powered CV-JD Matching",
   description:
     "Upload your CV and Job Description to instantly see match score, gaps, and improvement insights.",
 };

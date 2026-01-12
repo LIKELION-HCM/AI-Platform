@@ -47,7 +47,6 @@ export default function DropzoneUpload({
 
   return (
     <div className="space-y-3">
-      {/* FILE LIST */}
       {files.length > 0 && (
         <div className="space-y-2">
           {files.map((f: File, i: number) => (

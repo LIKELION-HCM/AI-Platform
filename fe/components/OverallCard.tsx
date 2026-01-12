@@ -9,9 +9,31 @@ export default function OverallCard({
 }) {
   if (!overall) return null;
 
+  const verdictStyleMap: Record<string, { bg: string; text: string }> = {
+    "Excellent Match": {
+      bg: "bg-[#C5FFB9]",
+      text: "text-[#025513]",
+    },
+    "Good Match": {
+      bg: "bg-[#A0DFFE]",
+      text: "text-[#005077]",
+    },
+    "Fair Match": {
+      bg: "bg-[#FFBD66]",
+      text: "text-[#754400]",
+    },
+    "Poor Match": {
+      bg: "bg-[#FFC2C2]",
+      text: "text-[#9B1212]",
+    },
+  };
+
+  const verdict = overall.verdict || "Excellent Match";
+  const verdictStyle =
+    verdictStyleMap[verdict] || verdictStyleMap["Excellent Match"];
+
   return (
     <div>
-      {/* Header with Candidate Info */}
       {meta && (
         <div className="mb-6">
           <div className="flex items-start justify-between">
@@ -25,8 +47,10 @@ export default function OverallCard({
               </p>
             </div>
             <div>
-              <span className="inline-block px-4 py-2 text-sm font-semibold rounded-lg bg-[#C5FFB9] text-[#025513]">
-                {overall.verdict || "Excellent Match"}
+              <span
+                className={`inline-block px-4 py-2 text-sm font-semibold rounded-lg ${verdictStyle.bg} ${verdictStyle.text}`}
+              >
+                {overall.verdict}
               </span>
             </div>
           </div>
@@ -46,7 +70,9 @@ export default function OverallCard({
 
           <div className="flex-1 space-y-4">
             {(overall.summary || overall.encouragement) && (
-              <p className="text-gray-700 leading-relaxed">{overall.summary || overall.encouragement}</p>
+              <p className="text-gray-700 leading-relaxed">
+                {overall.summary || overall.encouragement}
+              </p>
             )}
             {/* Strength */}
             <div>

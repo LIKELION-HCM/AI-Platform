@@ -42,8 +42,6 @@ export default function CompanyScanDetail() {
       <div className="max-w-7xl mx-auto space-y-6">
         {loading && <FullPageLoader text="Loading" />}
 
-        {/* <BackToDashboard /> */}
-
         <OverallCard overall={data?.overall} meta={data?.meta} />
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -56,7 +54,6 @@ export default function CompanyScanDetail() {
           <DetailedSectionCard title="Education" data={data?.education} />
         </div>
 
-        {/* ATS KEYWORDS */}
         {(matchedKeywords.length > 0 || missingKeywords.length > 0) && (
           <div className="rounded-xl p-6 border-2 border-[#5ACFD6]">
             <div className="bg-[#B4F1F1] rounded-xl p-[10px] mb-6">
@@ -65,7 +62,6 @@ export default function CompanyScanDetail() {
               </h3>
             </div>
 
-            {/* Matched */}
             {matchedKeywords.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-2 mb-3">
@@ -87,7 +83,6 @@ export default function CompanyScanDetail() {
               </div>
             )}
 
-            {/* Missing */}
             {missingKeywords.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-3">

@@ -68,7 +68,6 @@ export default function CompanyDashboard() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-            {/* ===== TABLE HEADER ===== */}
             <div className="overflow-x-auto">
               <table className="w-full table-fixed border-collapse">
                 <TableCols />
@@ -84,7 +83,6 @@ export default function CompanyDashboard() {
               </table>
             </div>
 
-            {/* ===== SCROLLABLE BODY ===== */}
             <div
               className="overflow-y-auto"
               style={{ maxHeight: "calc(100vh - 333px)" }}
@@ -147,7 +145,7 @@ export default function CompanyDashboard() {
                               onClick={() =>
                                 router.push(`/dashboard/${scan.id}`)
                               }
-                              className="text-sm font-medium text-gray-700 hover:text-gray-900 underline"
+                              className="text-sm font-medium text-gray-700 hover:text-gray-900 underline cursor-pointer"
                             >
                               View Detail
                             </button>

@@ -7,9 +7,6 @@ import { cleanJSON } from "@/utils/clean";
 import mammoth from "mammoth";
 import { NextResponse } from "next/server";
 
-/* =========================
-   FILE PARSER
-========================= */
 async function parseFile(file: File) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -31,9 +28,6 @@ async function parseFile(file: File) {
   throw new Error("Unsupported file type");
 }
 
-/* =========================
-   ROUTE HANDLER
-========================= */
 export async function POST(req: Request) {
   try {
     const form = await req.formData();
@@ -46,9 +40,6 @@ export async function POST(req: Request) {
 
     const userType = String(form.get("userType") || "USER");
 
-    /* =========================
-       VALIDATION
-    ========================= */
     if (
       (!cvs.length && !cvTextInput) ||
       (!jds.length && !jdTextInput)
@@ -67,9 +58,6 @@ export async function POST(req: Request) {
       );
     }
 
-    /* =========================
-       NORMALIZE INPUT → TEXT
-    ========================= */
     const cvTexts: { name: string; text: string }[] = [];
     const jdTexts: { name: string; text: string }[] = [];
 
@@ -111,9 +99,6 @@ export async function POST(req: Request) {
       });
     }
 
-    /* =========================
-       SAFETY CHECK
-    ========================= */
     if (cvTexts.length > 1 && jdTexts.length > 1) {
       return NextResponse.json(
         {
@@ -124,9 +109,6 @@ export async function POST(req: Request) {
       );
     }
 
-    /* =========================
-       ANALYZE
-    ========================= */
     const results: any[] = [];
 
     // COMPANY: many CVs vs 1 JD
@@ -171,9 +153,6 @@ export async function POST(req: Request) {
   }
 }
 
-/* =========================
-   OPENAI ANALYZER
-========================= */
 async function analyzeWithGPT(prompt: string, apiKey: string) {
   const res = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",

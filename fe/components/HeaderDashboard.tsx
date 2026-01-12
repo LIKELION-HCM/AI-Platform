@@ -38,7 +38,7 @@ export default function HeaderDashboard() {
           className="cursor-pointer"
         >
           <h1 className="text-xl font-bold text-teal-700 tracking-tight">
-            RESUME FIT
+            TALENT FIT
           </h1>
         </div>
 

@@ -13,10 +13,8 @@ export default function LandingLayout({
 
   return (
     <div className="min-h-screen text-gray-100">
-      {/* Header */}
       <Header onLogin={openLogin} onSignup={openSignup} />
 
-      {/* Main content */}
       <main className="relative">{children}</main>
 
       <AuthModal />
