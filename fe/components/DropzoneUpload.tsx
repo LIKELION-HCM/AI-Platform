@@ -1,53 +1,28 @@
 "use client";
 
-import { FileText, X } from "lucide-react";
+import { FileText, Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
 
-interface DropzoneUploadProps {
-  onSubmit: (files: File[]) => void;
-  loading?: boolean;
-  files?: File[];
-  label?: string;
-  removable?: boolean;
-  accentColor?: "blue" | "purple";
-  maxFiles?: number;
-}
-
 export default function DropzoneUpload({
   onSubmit,
-  loading = false,
   files = [],
-  label = "Upload file",
+  label,
   removable = false,
-  accentColor = "blue",
   maxFiles = 1,
-}: DropzoneUploadProps) {
+  loading = false,
+}: any) {
   const [error, setError] = useState<string | null>(null);
 
-  const mimeAccept = {
-    "application/pdf": [".pdf"],
-    "application/msword": [".doc"],
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
-      ".docx",
-    ],
-  };
-
   const onDrop = useCallback(
-    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-      if (fileRejections.length) {
+    (accepted: File[], rejected: FileRejection[]) => {
+      if (rejected.length) {
         setError("Only PDF / DOC / DOCX files are allowed");
         return;
       }
 
-      const nextFiles = [...files, ...acceptedFiles].slice(0, maxFiles);
-
-      if (nextFiles.length > maxFiles) {
-        setError(`Maximum ${maxFiles} files allowed`);
-        return;
-      }
-
-      onSubmit(nextFiles);
+      const next = [...files, ...accepted].slice(0, maxFiles);
+      onSubmit(next);
       setError(null);
     },
     [files, maxFiles, onSubmit]
@@ -55,59 +30,99 @@ export default function DropzoneUpload({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: mimeAccept,
     multiple: maxFiles > 1,
     disabled: loading || files.length >= maxFiles,
+    accept: {
+      "application/pdf": [".pdf"],
+      "application/msword": [".doc"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
+    },
   });
 
-  const removeFile = (index: number) => {
-    const next = files.filter((_, i) => i !== index);
-    onSubmit(next);
+  const handleRemove = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    onSubmit(files.filter((_: any, idx: number) => idx !== index));
   };
 
   return (
-    <div>
-      <div
-        {...getRootProps()}
-        className={`border-2 border-dashed p-5 rounded-lg cursor-pointer ${
-          isDragActive ? "border-blue-500" : "border-gray-700"
-        } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        <input {...getInputProps()} />
+    <div className="space-y-3">
+      {/* FILE LIST */}
+      {files.length > 0 && (
+        <div className="space-y-2">
+          {files.map((f: File, i: number) => (
+            <div
+              key={i}
+              className="flex items-center justify-between px-4 py-3 rounded-lg border border-[#5ACFD6]"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <FileText className="w-5 h-5 text-teal-600" />
+                <span className="text-sm font-medium text-gray-700 truncate">
+                  {f.name}
+                </span>
+              </div>
 
-        <p className="text-sm font-semibold mb-2 text-gray-100">{label}</p>
-
-        {files.length === 0 && (
-          <p className="text-xs text-gray-400">
-            Drag & drop or click to upload ({maxFiles} max)
-          </p>
-        )}
-
-        {files.map((f, i) => (
-          <div
-            key={i}
-            className="flex items-center justify-between text-sm text-gray-300 mt-2"
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <FileText className="w-4 h-4 text-gray-400 shrink-0" />
-
-              <span
-                className="text-sm text-gray-200 truncate max-w-[360px]"
-                title={f.name}
-              >
-                {f.name}
-              </span>
+              {removable && (
+                <button
+                  type="button"
+                  onClick={(e) => handleRemove(e, i)}
+                  className="cursor-pointer p-1 hover:bg-red-50 rounded"
+                >
+                  <X className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                </button>
+              )}
             </div>
-            {removable && (
-              <button onClick={() => removeFile(i)}>
-                <X className="w-4 h-4 text-red-400" />
-              </button>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
+      )}
 
-        {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
-      </div>
+      {/* DROPZONE */}
+      {files.length < maxFiles && (
+        <div
+          {...getRootProps()}
+          className={`border-2 border-dashed rounded-xl p-8 transition text-center cursor-pointer
+            ${
+              isDragActive
+                ? "border-[#5ACFD6] bg-[#EDFFFF]"
+                : "border-[#5ACFD6] hover:bg-[#EDFFFF]/50"
+            }
+            ${
+              loading
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }
+          `}
+        >
+          <input {...getInputProps()} />
+
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-[#B4F1F180] flex items-center justify-center mb-4">
+              <Upload className="w-6 h-6 text-teal-600" />
+            </div>
+
+            <span className="px-5 py-2 rounded-lg bg-[#B4F1F180] text-sm font-medium text-teal-700 mb-2">
+              {label}
+            </span>
+
+            <p className="text-xs text-gray-500">
+              Drag & drop here, or click to select
+              {maxFiles > 1 && ` (max ${maxFiles})`}
+            </p>
+
+            <p className="text-xs text-gray-400 mt-1">
+              PDF, DOC, or DOCX up to 10MB
+            </p>
+          </div>
+        </div>
+      )}
+
+      {maxFiles > 1 && files.length > 0 && (
+        <p className="text-xs text-gray-500 text-center">
+          {files.length} of {maxFiles} file(s) uploaded
+        </p>
+      )}
+
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }

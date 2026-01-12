@@ -20,7 +20,9 @@ Return JSON ONLY with the following exact structure:
   "overall": {
     "match_score": number (0-100),
     "summary": string,
-    "verdict": "Excellent Match" | "Good Match" | "Fair Match" | "Poor Match"
+    "verdict": "Excellent Match" | "Good Match" | "Fair Match" | "Poor Match",
+    "strengths": string[],
+    "weaknesses": string[]
   },
   "breakdown": {
     "experience": number (0-100),
@@ -52,11 +54,6 @@ Return JSON ONLY with the following exact structure:
     "matched": string[],
     "missing": string[]
   },
-  "filters": {
-    "meets_experience_requirement": boolean,
-    "meets_education_requirement": boolean,
-    "missing_critical_skills": boolean
-  }
 }
 
 SCORING RULES:

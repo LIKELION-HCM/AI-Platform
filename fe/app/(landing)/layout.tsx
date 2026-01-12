@@ -19,13 +19,6 @@ export default function LandingLayout({
       {/* Main content */}
       <main className="relative">{children}</main>
 
-      {/* Footer */}
-      <footer className="bg-[#F7F3F3] border-t border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-4 text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} Resume Fit. All rights reserved.
-        </div>
-      </footer>
-
       <AuthModal />
     </div>
   );

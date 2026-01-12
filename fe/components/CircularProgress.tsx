@@ -10,12 +10,11 @@ export default function CircularProgress({
       <div
         className="absolute inset-0 rounded-full"
         style={{
-          background: `conic-gradient(from 0deg, rgb(249 115 22) 0%, rgb(236 72 153) ${score}%, rgb(55 65 81) ${score}% 100%)`,
+          background: `conic-gradient(from 0deg, rgb(20 184 166) 0%, rgb(99 102 241) ${score}%, rgb(229 231 235) ${score}% 100%)`,
         }}
       />
-      <div className="absolute inset-2 rounded-full bg-gray-800 flex flex-col items-center justify-center">
-        <div className="text-3xl font-bold text-white">{score}%</div>
-        <div className="text-xs text-gray-400">Match</div>
+      <div className="absolute inset-2 rounded-full bg-white flex flex-col items-center justify-center shadow-inner">
+        <div className="text-4xl font-bold text-[#176D81]">{score}%</div>
       </div>
     </div>
   );

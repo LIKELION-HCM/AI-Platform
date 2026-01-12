@@ -7,7 +7,6 @@ import api from "@/lib/axios";
 import { cleanJSON } from "@/utils/clean";
 import { redirect, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BackToDashboard } from "../BackButton";
 import FullPageLoader from "../Loading";
 
 export default function UserScanDetail() {
@@ -32,84 +31,47 @@ export default function UserScanDetail() {
 
   useEffect(() => {
     if (!scanId) return redirect("/dashboard");
-
     fetchScanDetail(scanId);
   }, [scanId]);
 
-  const matchedKeywords = data?.highlighted_keywords?.matched ?? [];
-  const missingKeywords = data?.highlighted_keywords?.missing ?? [];
-
   return (
-    <div className="space-y-6">
-      {loading && <FullPageLoader text="Loading"/>}
-      <BackToDashboard />
-      {/* OVERALL */}
-      <OverallCard overall={data?.overall} />
+    <div className="p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {loading && <FullPageLoader text="Loading" />}
 
-      {/* BREAKDOWN */}
-      <DetailedSectionCard title="Experience" data={data?.experience} />
+        {/* <BackToDashboard /> */}
 
-      <DetailedSectionCard title="Skills" data={data?.skills} />
+        <OverallCard overall={data?.overall} meta={data?.meta} />
 
-      <DetailedSectionCard
-        title="Position & Title"
-        data={data?.position_title}
-      />
-
-      <DetailedSectionCard title="Education" data={data?.education} />
-
-      <DetailedSectionCard title="Next Steps" data={data?.next_steps} />
-
-      {/* ATS KEYWORDS */}
-      {(matchedKeywords.length > 0 || missingKeywords.length > 0) && (
-        <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700 space-y-4">
-          <h3 className="text-sm font-semibold">ATS Keywords</h3>
-
-          {/* Matched */}
-          {matchedKeywords.length > 0 && (
-            <div>
-              <div className="text-xs text-gray-400 mb-2">Matched keywords</div>
-              <div className="flex flex-wrap gap-2">
-                {matchedKeywords.map((k: string, i: number) => (
-                  <span
-                    key={i}
-                    className="
-                      px-3 py-1 text-xs rounded-full
-                      bg-green-500/15 text-green-400
-                      border border-green-500/30
-                    "
-                  >
-                    {k}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Missing */}
-          {missingKeywords.length > 0 && (
-            <div>
-              <div className="text-xs text-gray-400 mb-2">
-                Missing keywords (ATS risk)
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {missingKeywords.map((k: string, i: number) => (
-                  <span
-                    key={i}
-                    className="
-                      px-3 py-1 text-xs rounded-full
-                      bg-red-500/15 text-red-400
-                      border border-red-500/30
-                    "
-                  >
-                    {k}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
+        <div className="grid md:grid-cols-2 gap-6">
+          <DetailedSectionCard title="Experiences" data={data?.experience} />
+          <DetailedSectionCard title="Skills" data={data?.skills} />
+          <DetailedSectionCard
+            title="Position & Title"
+            data={data?.position_title}
+          />
+          <DetailedSectionCard title="Education" data={data?.education} />
         </div>
-      )}
+        <DetailedSectionCard title="Next Steps" data={data?.next_steps} />
+
+        {/* Quick Win Section */}
+        {/* {data?.quick_wins && data.quick_wins.length > 0 && (
+          <div className="bg-teal-100 rounded-2xl shadow-sm p-6 border-2 border-teal-300">
+            <h3 className="text-lg font-bold text-teal-900 mb-4">Quick Win</h3>
+            <ul className="space-y-2">
+              {data.quick_wins.map((win: string, i: number) => (
+                <li
+                  key={i}
+                  className="text-sm text-gray-800 flex items-start gap-2"
+                >
+                  <span className="text-teal-700 mt-0.5">•</span>
+                  <span>{win}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )} */}
+      </div>
     </div>
   );
 }

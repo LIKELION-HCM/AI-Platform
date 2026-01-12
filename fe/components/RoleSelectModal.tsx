@@ -73,13 +73,13 @@ export default function RoleSelectModal({
               onClick={() => setRole("company")}
               className={`relative cursor-pointer p-8 rounded-2xl border-2 transition-all text-center ${
                 role === "company"
-                  ? "border-teal-400 bg-teal-50 shadow-lg scale-105"
+                  ? "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
             >
               {/* Checkmark */}
               {role === "company" && (
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-8 h-8 bg-teal-400 rounded-full flex items-center justify-center shadow-md">
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-8 h-8 bg-[#5ACFD6] rounded-full flex items-center justify-center shadow-md">
                   <Check className="w-5 h-5 text-white" strokeWidth={3} />
                 </div>
               )}
@@ -114,12 +114,12 @@ export default function RoleSelectModal({
               onClick={() => setRole("user")}
               className={`relative cursor-pointer p-8 rounded-2xl border-2 transition-all text-center ${
                 role === "user"
-                  ? "border-teal-400 bg-teal-50 shadow-lg scale-105"
+                  ? "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
             >
               {role === "user" && (
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-8 h-8 bg-teal-400 rounded-full flex items-center justify-center shadow-md">
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-8 h-8 bg-[#5ACFD6] rounded-full flex items-center justify-center shadow-md">
                   <Check className="w-5 h-5 text-white" strokeWidth={3} />
                 </div>
               )}

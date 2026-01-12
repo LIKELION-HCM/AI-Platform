@@ -18,21 +18,35 @@ type JdMode = "upload" | "text";
 type CvForm = {
   fullName: string;
   yearOfBirth: string;
-  education: string;
-  experience: string;
+  email: string;
+  literacy: string;
+  jobSkills: string;
   softSkills: string;
+  experience: string;
   certificates: string;
-  others: string;
 };
+
+type CvErrors = Partial<Record<keyof CvForm, string>>;
+
+const REQUIRED_CV_FIELDS: (keyof CvForm)[] = [
+  "fullName",
+  "yearOfBirth",
+  "email",
+  "literacy",
+  "jobSkills",
+  "softSkills",
+  "experience",
+];
 
 const initialCvForm: CvForm = {
   fullName: "",
   yearOfBirth: "",
-  education: "",
-  experience: "",
+  email: "",
+  literacy: "",
+  jobSkills: "",
   softSkills: "",
+  experience: "",
   certificates: "",
-  others: "",
 };
 
 export default function ScanPage() {
@@ -46,22 +60,26 @@ export default function ScanPage() {
   const [jds, setJds] = useState<File[]>([]);
 
   const [cvForm, setCvForm] = useState<CvForm>(initialCvForm);
+  const [cvErrors, setCvErrors] = useState<CvErrors>({});
+
   const [jdText, setJdText] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [analysisDone, setAnalysisDone] = useState(false);
 
-  const isUsingCvFile = cvMode === "upload";
-  const isUsingJdFile = jdMode === "upload";
   const isCompany = user?.userType === "COMPANY";
 
   const maxCV = isCompany ? 5 : 1;
   const maxJD = isCompany ? 1 : 5;
 
+  const requestsLeft = 3; // TODO: Get from API
+  const totalRequests = 3;
+
   const toggleCvMode = () => {
     setCvMode((m) => (m === "upload" ? "form" : "upload"));
     setCvs([]);
     setCvForm(initialCvForm);
+    setCvErrors({});
   };
 
   const toggleJdMode = () => {
@@ -70,59 +88,58 @@ export default function ScanPage() {
     setJdText("");
   };
 
-  const isCvValid = isUsingCvFile ? cvs.length > 0 : !!cvForm.fullName;
-  const isJdValid = isUsingJdFile ? jds.length > 0 : !!jdText.trim();
+  const isCvValid =
+    cvMode === "upload"
+      ? cvs.length > 0
+      : REQUIRED_CV_FIELDS.every((k) => cvForm[k].trim());
+
+  const isJdValid = jdMode === "upload" ? jds.length > 0 : !!jdText.trim();
   const canSubmit = isCvValid && isJdValid && !loading;
 
   const onAnalyze = async () => {
-    if (!isCvValid) {
-      toast.warning("Please upload CV or fill candidate information");
-      return;
+    setCvErrors({});
+
+    // Validate form if using manual CV mode
+    if (cvMode === "form") {
+      const errors = validateCvForm(cvForm);
+      if (Object.keys(errors).length > 0) {
+        setCvErrors(errors);
+        toast.error("Please fix validation errors");
+        return;
+      }
     }
 
-    if (!isJdValid) {
-      toast.warning("Please upload JD or input JD text");
+    if (!isJdValid || !isCvValid) {
+      toast.warning("Please provide CV and JD data");
       return;
     }
 
     const form = new FormData();
 
-    // CV
-    if (isUsingCvFile) {
+    if (cvMode === "upload") {
       cvs.forEach((f) => form.append("cvs", f));
     } else {
       form.append("cvText", buildCvTextFromForm(cvForm));
     }
 
-    // JD
-    if (isUsingJdFile) {
+    if (jdMode === "upload") {
       jds.forEach((f) => form.append("jds", f));
     } else {
       form.append("jdText", jdText);
     }
 
-    form.append("userType", "COMPANY");
+    form.append("userType", user?.userType || "USER");
 
     try {
       setLoading(true);
       setAnalysisDone(false);
 
       const res = await apiClient.post("/scan", form);
-      if (res.status !== 200) {
-        toast.error("Analyze failed");
-        return;
-      }
-
       const results = res.data?.results;
 
-      if (!Array.isArray(results) || results.length === 0) {
-        toast.error("No matching result returned");
-        return;
-      }
-
       const payload = results.map((item: any) => ({
-        candidateName: item.meta?.candidate_name || item.cvName || "Unknown",
-        jdPosition: item.meta?.job_title || item.jdName || "Unknown",
+        candidateName: item.meta?.candidate_name || "Unknown",
+        jdPosition: item.meta?.job_title || "Unknown",
         cvId: "",
         jdId: "",
         cvSummary: item.meta?.one_line_summary || "",
@@ -131,22 +148,12 @@ export default function ScanPage() {
         responseBody: item,
       }));
 
-      const saveRes = await api.post("/api/matchings", payload);
-
-      if (saveRes.status !== 200 || !Array.isArray(saveRes.data)) {
-        toast.error("Save matching result failed");
-        return;
-      }
+      await api.post("/api/matchings", payload);
 
       setAnalysisDone(true);
-
       toast.success(`Analyzed ${payload.length} matching(s)`);
-
-      const timer = setTimeout(() => {
-        router.push("/dashboard");
-      }, 3000);
-      return () => clearTimeout(timer);
-    } catch (e) {
+      setTimeout(() => router.push("/dashboard"), 2500);
+    } catch {
       toast.error("Analyze failed");
     } finally {
       setLoading(false);
@@ -158,213 +165,277 @@ export default function ScanPage() {
       <HeaderDashboard />
       <ToastContainer />
       {loading && <ProgressPageLoader loading={loading} done={analysisDone} />}
-      <div className="min-h-screen mx-auto px-6 py-10 space-y-6 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
-        <h1 className="text-2xl font-semibold text-white">CV & JD Matching</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <section className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
-            <SectionHeader
-              title="Candidate (CV)"
-              mode={cvMode}
-              onToggle={toggleCvMode}
-              uploadLabel="Switch to Upload CV"
-              altLabel="Switch to Fill manually"
-            />
+      <div className="px-8 py-10 bg-[#EDFFFF] space-y-8">
+        <div className="max-w-8xl mx-auto space-y-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h1 className="text-4xl font-bold text-[#176D81]">
+                AI CV-JD Analysis
+              </h1>
+              <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-medium">
+                {requestsLeft}/{totalRequests} requests left today
+              </span>
+            </div>
+
+            <button
+              disabled={!canSubmit}
+              onClick={onAnalyze}
+              className={`px-6 py-3 rounded-lg font-semibold transition shadow-lg ${
+                canSubmit
+                  ? "bg-[#FFB200] hover:bg-yellow-600 text-white cursor-pointer"
+                  : "bg-[#969696] text-[#D9D9D9] cursor-not-allowed"
+              }`}
+            >
+              {loading ? "Analyzing..." : "Analyze CV–JD"}
+            </button>
+          </div>
+
+          <p className="text-gray-600 -mt-4">
+            Upload a candidate CV and a job description to evaluate the
+            compatibility.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          <section className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-lg">UPLOAD CV</h2>
+              <button
+                onClick={toggleCvMode}
+                className="cursor-pointer text-sm px-4 py-2 rounded-lg border-2 border-[#5ACFD6] hover:bg-[#EDFFFF]/50 transition font-medium"
+              >
+                {cvMode === "upload"
+                  ? "Switch to Fill Manually"
+                  : "Switch to Upload Files"}
+              </button>
+            </div>
 
             {cvMode === "upload" ? (
               <DropzoneUpload
-                label="Upload CV"
+                label="UPLOAD CV"
                 files={cvs}
                 onSubmit={setCvs}
-                removable
                 maxFiles={maxCV}
+                removable
                 loading={loading}
               />
             ) : (
-              <CvStructuredForm value={cvForm} onChange={setCvForm} />
+              <CvStructuredForm
+                value={cvForm}
+                errors={cvErrors}
+                onChange={(v) => {
+                  setCvForm(v);
+                  setCvErrors({});
+                }}
+              />
             )}
           </section>
 
-          <section className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
-            <SectionHeader
-              title="Job Description"
-              mode={jdMode}
-              onToggle={toggleJdMode}
-              uploadLabel="Switch to Upload JD"
-              altLabel="Switch to Paste text"
-            />
+          <section className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-lg">UPLOAD JD</h2>
+              <button
+                onClick={toggleJdMode}
+                className="cursor-pointer text-sm px-4 py-2 rounded-lg border-2 border-[#5ACFD6] hover:bg-[#EDFFFF]/50 transition font-medium"
+              >
+                {jdMode === "upload"
+                  ? "Switch to Paste Text"
+                  : "Switch to Upload Files"}
+              </button>
+            </div>
 
             {jdMode === "upload" ? (
               <DropzoneUpload
-                label="Upload Job Description"
+                label="UPLOAD JD"
                 files={jds}
                 onSubmit={setJds}
-                removable
                 maxFiles={maxJD}
+                removable
                 loading={loading}
               />
             ) : (
               <textarea
                 value={jdText}
                 onChange={(e) => setJdText(e.target.value)}
-                placeholder="Paste job description here..."
-                className="w-full min-h-[260px] bg-gray-800 border border-gray-700 rounded-lg p-3 text-sm text-gray-200"
+                placeholder="Paste your job description here..."
+                className="w-full min-h-[400px] p-4 rounded-xl border-2 border-[#D2D0CE] focus:border-[#5ACFD6] focus:outline-none text-sm text-gray-700 resize-none bg-[#FAFAFA]"
               />
             )}
           </section>
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            disabled={!canSubmit}
-            onClick={onAnalyze}
-            className={`
-             px-6 py-2 rounded-lg text-sm font-medium
-            ${
-              canSubmit
-                ? "bg-blue-600 hover:bg-blue-500 text-white cursor-pointer"
-                : "bg-gray-700 text-gray-400 cursor-not-allowed"
-            }
-          `}
-          >
-            {loading ? "Analyzing..." : "Start Matching"}
-          </button>
         </div>
       </div>
     </>
   );
 }
 
-function SectionHeader({
-  title,
-  mode,
-  onToggle,
-  uploadLabel,
-  altLabel,
-}: {
-  title: string;
-  mode: "upload" | "form" | "text";
-  onToggle: () => void;
-  uploadLabel: string;
-  altLabel: string;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <h2 className="font-semibold text-gray-100">{title}</h2>
-      <button
-        onClick={onToggle}
-        className="cursor-pointer text-xs px-3 py-1.5 rounded-md bg-gray-800 border border-gray-700 text-gray-300 hover:text-white"
-      >
-        {mode === "upload" ? altLabel : uploadLabel}
-      </button>
-    </div>
-  );
-}
-
-function FileUpload({
-  files,
-  onChange,
-}: {
-  files: File[];
-  onChange: (f: File[]) => void;
-}) {
-  return (
-    <div className="border border-dashed border-gray-700 rounded-lg p-4 space-y-3">
-      <input
-        type="file"
-        multiple
-        onChange={(e) =>
-          onChange(e.target.files ? Array.from(e.target.files) : [])
-        }
-        className="block w-full text-sm text-gray-400 cursor-pointer"
-      />
-
-      {files.length > 0 && (
-        <ul className="text-sm text-gray-300 space-y-1">
-          {files.map((f, i) => (
-            <li key={i} className="truncate">
-              {f.name}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 function CvStructuredForm({
   value,
+  errors,
   onChange,
 }: {
   value: CvForm;
+  errors: CvErrors;
   onChange: (v: CvForm) => void;
 }) {
-  const update = (key: keyof CvForm, val: string) =>
-    onChange({ ...value, [key]: val });
+  const update = (k: keyof CvForm, v: string) => onChange({ ...value, [k]: v });
 
   return (
-    <div className="space-y-3">
-      <Input
-        label="Full name"
-        value={value.fullName}
-        onChange={(v: any) => update("fullName", v)}
-      />
-      <Input
-        label="Birth year"
-        value={value.yearOfBirth}
-        onChange={(v: any) => update("yearOfBirth", v)}
-      />
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <Input
+          label="Name"
+          value={value.fullName}
+          placeholder="Nguyen Van A"
+          onChange={(v: string) => update("fullName", v)}
+          error={errors.fullName}
+        />
+        <Input
+          label="Year of Birth"
+          value={value.yearOfBirth}
+          placeholder="xxxx"
+          onChange={(v: string) => update("yearOfBirth", v)}
+          error={errors.yearOfBirth}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Input
+          label="Email"
+          value={value.email}
+          placeholder="abc@example.com"
+          onChange={(v: string) => update("email", v)}
+          error={errors.email}
+        />
+        <Input
+          label="Literacy"
+          value={value.literacy}
+          placeholder="University"
+          onChange={(v: string) => update("literacy", v)}
+          error={errors.literacy}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Input
+          label="Job Skills"
+          value={value.jobSkills}
+          placeholder="Front-end"
+          onChange={(v: string) => update("jobSkills", v)}
+          error={errors.jobSkills}
+        />
+        <Input
+          label="Soft Skills"
+          value={value.softSkills}
+          placeholder="Communication"
+          onChange={(v: string) => update("softSkills", v)}
+          error={errors.softSkills}
+        />
+      </div>
+
       <Textarea
-        label="Education"
-        value={value.education}
-        onChange={(v: any) => update("education", v)}
-      />
-      <Textarea
-        label="Work experience"
+        label="Experiences"
         value={value.experience}
-        onChange={(v: any) => update("experience", v)}
+        placeholder="Describe your experience here..."
+        onChange={(v: string) => update("experience", v)}
+        error={errors.experience}
       />
-      <Textarea
-        label="Soft skills"
-        value={value.softSkills}
-        onChange={(v: any) => update("softSkills", v)}
-      />
-      <Textarea
-        label="Certificates"
+
+      <Input
+        label="Certificates (optional)"
         value={value.certificates}
-        onChange={(v: any) => update("certificates", v)}
-      />
-      <Textarea
-        label="Others"
-        value={value.others}
-        onChange={(v: any) => update("others", v)}
+        placeholder="Certificate name"
+        onChange={(v: string) => update("certificates", v)}
       />
     </div>
   );
 }
 
-function Input({ label, value, onChange }: any) {
+function Input({ label, value, placeholder, onChange, error }: any) {
   return (
     <div>
-      <label className="text-xs text-gray-400">{label}</label>
+      <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+        {label}
+      </label>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-200"
+        placeholder={placeholder}
+        className={`w-full px-3 py-2 rounded-lg border-2 transition focus:outline-none text-sm bg-[#FAFAFA] ${
+          error
+            ? "border-red-300 focus:border-red-400"
+            : "border-[#D2D0CE] focus:border-[#5ACFD6]"
+        }`}
       />
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 }
 
-function Textarea({ label, value, onChange }: any) {
+function Textarea({ label, value, placeholder, onChange, error }: any) {
   return (
     <div>
-      <label className="text-xs text-gray-400">{label}</label>
+      <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+        {label}
+      </label>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full min-h-[80px] bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-200"
+        placeholder={placeholder}
+        className={`w-full min-h-[100px] px-3 py-2 rounded-lg border-2 transition focus:outline-none text-sm resize-none bg-[#FAFAFA] ${
+          error
+            ? "border-red-300 focus:border-red-400"
+            : "border-[#D2D0CE] focus:border-[#5ACFD6]"
+        }`}
       />
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
+}
+
+function isValidBirthYear(year: string) {
+  const y = Number(year);
+  return Number.isInteger(y) && y >= 1950 && y <= new Date().getFullYear();
+}
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validateCvForm(form: CvForm): CvErrors {
+  const errors: CvErrors = {};
+
+  if (!form.fullName.trim()) {
+    errors.fullName = "Full name is required";
+  }
+
+  if (!form.yearOfBirth.trim()) {
+    errors.yearOfBirth = "Year of birth is required";
+  } else if (!isValidBirthYear(form.yearOfBirth)) {
+    errors.yearOfBirth = "Invalid year (1950-current)";
+  }
+
+  if (!form.email.trim()) {
+    errors.email = "Email is required";
+  } else if (!isValidEmail(form.email)) {
+    errors.email = "Invalid email format";
+  }
+
+  if (!form.literacy.trim()) {
+    errors.literacy = "Education/Literacy is required";
+  }
+
+  if (!form.jobSkills.trim()) {
+    errors.jobSkills = "Job skills are required";
+  }
+
+  if (!form.softSkills.trim()) {
+    errors.softSkills = "Soft skills are required";
+  }
+
+  if (!form.experience.trim()) {
+    errors.experience = "Work experience is required";
+  }
+
+  return errors;
 }

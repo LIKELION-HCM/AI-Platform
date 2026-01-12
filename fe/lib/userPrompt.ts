@@ -17,7 +17,9 @@ Return JSON ONLY with the following exact structure:
   "overall": {
     "match_score": number,
     "verdict": "Excellent Match" | "Good Match" | "Fair Match" | "Poor Match",
-    "encouragement": string
+    "encouragement": string,
+    "strengths": string[],
+    "weaknesses": string[]
   },
   "breakdown": {
     "experience": number,

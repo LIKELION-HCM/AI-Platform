@@ -12,7 +12,7 @@ export default function Header({ onLogin, onSignup }: HeaderProps) {
   const { user } = useAuth();
 
   return (
-   <header className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-md">
+   <header className="sticky top-0 z-20 bg-[#EDFFFF] border-b border-gray-200 shadow-md">
       <div className="max-w-8xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center">
           <h1 className="text-xl font-bold text-[#197083] tracking-tight">

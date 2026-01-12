@@ -1,31 +1,33 @@
 export function buildCvTextFromForm(cv: {
   fullName: string;
   yearOfBirth: string;
-  education: string;
-  experience: string;
+  email: string;
+  literacy: string;
+  jobSkills: string;
   softSkills: string;
+  experience: string;
   certificates?: string;
-  other?: string;
 }) {
   return `
 Candidate Profile
 
 Full name: ${cv.fullName}
 Year of birth: ${cv.yearOfBirth}
+Email: ${cv.email}
 
-Education:
-${cv.education}
+Education / Literacy:
+${cv.literacy}
 
-Work experience:
-${cv.experience}
+Job Skills:
+${cv.jobSkills}
 
-Soft skills:
+Soft Skills:
 ${cv.softSkills}
+
+Work Experience:
+${cv.experience}
 
 Certificates:
 ${cv.certificates || "None"}
-
-Other information:
-${cv.other || "None"}
 `.trim();
 }
