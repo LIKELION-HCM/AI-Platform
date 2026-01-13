@@ -16,36 +16,39 @@ type CvMode = "upload" | "form";
 type JdMode = "upload" | "text";
 
 type CvForm = {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   yearOfBirth: string;
-  email: string;
-  literacy: string;
+  education: string;
   jobSkills: string;
   softSkills: string;
   experience: string;
+  yearOfExperience: string;
   certificates: string;
 };
 
 type CvErrors = Partial<Record<keyof CvForm, string>>;
 
 const REQUIRED_CV_FIELDS: (keyof CvForm)[] = [
-  "fullName",
+  "firstName",
+  "lastName",
   "yearOfBirth",
-  "email",
-  "literacy",
+  "education",
   "jobSkills",
   "softSkills",
+  "yearOfExperience",
   "experience",
 ];
 
 const initialCvForm: CvForm = {
-  fullName: "",
+  firstName: "",
+  lastName: "",
   yearOfBirth: "",
-  email: "",
-  literacy: "",
+  education: "",
   jobSkills: "",
   softSkills: "",
   experience: "",
+  yearOfExperience: "",
   certificates: "",
 };
 
@@ -283,35 +286,35 @@ function CvStructuredForm({
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <Input
-          label="Name"
-          value={value.fullName}
-          placeholder="Nguyen Van A"
-          onChange={(v: string) => update("fullName", v)}
-          error={errors.fullName}
+          label="First Name"
+          value={value.firstName}
+          placeholder="Nguyen"
+          onChange={(v: string) => update("firstName", v)}
+          error={errors.firstName}
         />
         <Input
-          label="Year of Birth"
-          value={value.yearOfBirth}
-          placeholder="xxxx"
-          onChange={(v: string) => update("yearOfBirth", v)}
-          error={errors.yearOfBirth}
+          label="Last Name"
+          value={value.lastName}
+          placeholder="Van A"
+          onChange={(v: string) => update("lastName", v)}
+          error={errors.lastName}
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <Input
-          label="Email"
-          value={value.email}
-          placeholder="abc@example.com"
-          onChange={(v: string) => update("email", v)}
-          error={errors.email}
+          label="Year of Birth"
+          value={value.yearOfBirth}
+          placeholder="Ex: 2000"
+          onChange={(v: string) => update("yearOfBirth", v)}
+          error={errors.yearOfBirth}
         />
         <Input
-          label="Literacy"
-          value={value.literacy}
-          placeholder="University"
-          onChange={(v: string) => update("literacy", v)}
-          error={errors.literacy}
+          label="Education"
+          value={value.education}
+          placeholder="Ex: Bachelor of Science"
+          onChange={(v: string) => update("education", v)}
+          error={errors.education}
         />
       </div>
 
@@ -319,14 +322,14 @@ function CvStructuredForm({
         <Input
           label="Job Skills"
           value={value.jobSkills}
-          placeholder="Front-end"
+          placeholder="Ex: JavaScript, Python, etc."
           onChange={(v: string) => update("jobSkills", v)}
           error={errors.jobSkills}
         />
         <Input
           label="Soft Skills"
           value={value.softSkills}
-          placeholder="Communication"
+          placeholder="Ex: Communication, Teamwork, etc."
           onChange={(v: string) => update("softSkills", v)}
           error={errors.softSkills}
         />
@@ -340,12 +343,21 @@ function CvStructuredForm({
         error={errors.experience}
       />
 
-      <Input
-        label="Certificates (optional)"
-        value={value.certificates}
-        placeholder="Certificate name"
-        onChange={(v: string) => update("certificates", v)}
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <Input
+          label="Year of Experience"
+          value={value.yearOfExperience}
+          placeholder="Ex: 2 years"
+          onChange={(v: string) => update("yearOfExperience", v)}
+          error={errors.yearOfExperience}
+        />
+        <Input
+          label="Certificates (optional)"
+          value={value.certificates}
+          placeholder="Ex: Ielts, Toeic, etc."
+          onChange={(v: string) => update("certificates", v)}
+        />
+      </div>
     </div>
   );
 }
@@ -397,15 +409,15 @@ function isValidBirthYear(year: string) {
   return Number.isInteger(y) && y >= 1950 && y <= new Date().getFullYear();
 }
 
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
 function validateCvForm(form: CvForm): CvErrors {
   const errors: CvErrors = {};
 
-  if (!form.fullName.trim()) {
-    errors.fullName = "Full name is required";
+  if (!form.firstName.trim()) {
+    errors.firstName = "First name is required";
+  }
+
+  if (!form.lastName.trim()) {
+    errors.lastName = "Last name is required";
   }
 
   if (!form.yearOfBirth.trim()) {
@@ -414,14 +426,8 @@ function validateCvForm(form: CvForm): CvErrors {
     errors.yearOfBirth = "Invalid year (1950-current)";
   }
 
-  if (!form.email.trim()) {
-    errors.email = "Email is required";
-  } else if (!isValidEmail(form.email)) {
-    errors.email = "Invalid email format";
-  }
-
-  if (!form.literacy.trim()) {
-    errors.literacy = "Education/Literacy is required";
+  if (!form.education.trim()) {
+    errors.education = "Education is required";
   }
 
   if (!form.jobSkills.trim()) {
@@ -434,6 +440,10 @@ function validateCvForm(form: CvForm): CvErrors {
 
   if (!form.experience.trim()) {
     errors.experience = "Work experience is required";
+  }
+
+  if (!form.yearOfExperience.trim()) {
+    errors.yearOfExperience = "Years of experience is required";
   }
 
   return errors;

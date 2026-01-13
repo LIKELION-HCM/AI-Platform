@@ -1,7 +1,8 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { ChevronDown, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -37,8 +38,15 @@ export default function HeaderDashboard() {
           onClick={() => router.push("/dashboard")}
           className="cursor-pointer"
         >
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={32}
+            height={32}
+            className="mr-2"
+          />
           <h1 className="text-xl font-bold text-teal-700 tracking-tight">
-            TALENT FIT
+            TalentFit
           </h1>
         </div>
 

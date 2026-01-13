@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { FileText, LogIn, UserPlus } from "lucide-react";
+import Image from "next/image";
 
 interface HeaderProps {
   onLogin?: () => void;
@@ -15,8 +15,15 @@ export default function Header({ onLogin, onSignup }: HeaderProps) {
    <header className="sticky top-0 z-20 bg-[#EDFFFF] border-b border-gray-200 shadow-md">
       <div className="max-w-8xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center">
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={32}
+            height={32}
+            className="mr-2"
+          />
           <h1 className="text-xl font-bold text-[#197083] tracking-tight">
-            TALENT FIT
+            TalentFit
           </h1>
         </div>
 
