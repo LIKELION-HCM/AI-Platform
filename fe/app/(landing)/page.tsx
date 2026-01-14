@@ -21,17 +21,17 @@ export default function LandingPage() {
 
   return (
     <>
-      <section className="relative overflow-hidden min-h-[calc(100vh-64px)] bg-[#EDFFFF] flex items-center justify-center px-6 py-20">
+      <section className="relative overflow-hidden min-h-[calc(100vh-65px)] bg-[#EDFFFF] flex pt-[11%] justify-center px-6 py-20">
         <div className="absolute right-[-187px] -top-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
         <div className="absolute left-[-187px] -bottom-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
+        <div className="relative z-10 max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full text-sm text-gray-700 mb-10 shadow-sm">
             AI-Powered CV-JD Matching
             <WandSparkles className="w-4 h-4 text-gray-600" />
           </div>
 
-          <h1 className="text-6xl md:text-7xl font-bold text-[#176D81] mb-6 leading-tight">
+          <h1 className="text-6xl md:text-8xl font-bold text-[#176D81] mb-6 leading-tight">
             Resume Fit in <span className="text-[#F7AA00] italic">Seconds</span>
           </h1>
 

@@ -23,7 +23,7 @@ export default function Header({ onLogin, onSignup }: HeaderProps) {
             className="mr-2"
           />
           <h1 className="text-xl font-bold text-[#197083] tracking-tight">
-            TalentFit
+            Talent Fit
           </h1>
         </div>
 

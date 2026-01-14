@@ -36,7 +36,7 @@ export default function HeaderDashboard() {
       <div className="max-w-8xl mx-auto px-6 h-16 flex items-center justify-between">
         <div
           onClick={() => router.push("/dashboard")}
-          className="cursor-pointer"
+          className="flex items-center cursor-pointer"
         >
           <Image
             src="/logo.svg"
@@ -46,7 +46,7 @@ export default function HeaderDashboard() {
             className="mr-2"
           />
           <h1 className="text-xl font-bold text-teal-700 tracking-tight">
-            TalentFit
+            Talent Fit
           </h1>
         </div>
 
