@@ -10,7 +10,7 @@ import api from "@/lib/axios";
 import { toast } from "@/lib/useToast";
 import { buildCvTextFromForm } from "@/utils/buildCvText";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type CvMode = "upload" | "form";
 type JdMode = "upload" | "text";
@@ -67,6 +67,8 @@ export default function ScanPage() {
 
   const [jdText, setJdText] = useState("");
 
+  const [requestsUsed, setRequestsUsed] = useState<number | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [analysisDone, setAnalysisDone] = useState(false);
 
@@ -75,8 +77,9 @@ export default function ScanPage() {
   const maxCV = isCompany ? 5 : 1;
   const maxJD = isCompany ? 1 : 5;
 
-  const requestsLeft = 3; // TODO: Get from API
   const totalRequests = 3;
+  const requestsLeft =
+    requestsUsed === null ? totalRequests : totalRequests - requestsUsed;
 
   const toggleCvMode = () => {
     setCvMode((m) => (m === "upload" ? "form" : "upload"));
@@ -97,7 +100,7 @@ export default function ScanPage() {
       : REQUIRED_CV_FIELDS.every((k) => cvForm[k].trim());
 
   const isJdValid = jdMode === "upload" ? jds.length > 0 : !!jdText.trim();
-  const canSubmit = isCvValid && isJdValid && !loading;
+  const canSubmit = isCvValid && isJdValid && !loading && requestsLeft > 0;
 
   const onAnalyze = async () => {
     setCvErrors({});
@@ -162,13 +165,29 @@ export default function ScanPage() {
     }
   };
 
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchCountToday = async () => {
+      try {
+        const res = await api.get("/api/matchings/countToday");
+        setRequestsUsed(res.data ?? 0);
+      } catch (err) {
+        console.error("Failed to fetch countToday", err);
+        setRequestsUsed(0);
+      }
+    };
+
+    fetchCountToday();
+  }, [user]);
+
   return (
     <>
       <HeaderDashboard />
       <ToastContainer />
       {loading && <ProgressPageLoader loading={loading} done={analysisDone} />}
 
-      <div className="px-8 py-10 bg-[#EDFFFF] space-y-8">
+      <div className="px-8 py-10 bg-[#EDFFFF] space-y-8 min-h-[calc(100vh-65px)]">
         <div className="max-w-8xl mx-auto space-y-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -288,14 +307,14 @@ function CvStructuredForm({
         <Input
           label="First Name"
           value={value.firstName}
-          placeholder="Nguyen"
+          placeholder="Ex: John"
           onChange={(v: string) => update("firstName", v)}
           error={errors.firstName}
         />
         <Input
           label="Last Name"
           value={value.lastName}
-          placeholder="Van A"
+          placeholder="Ex: Doe"
           onChange={(v: string) => update("lastName", v)}
           error={errors.lastName}
         />

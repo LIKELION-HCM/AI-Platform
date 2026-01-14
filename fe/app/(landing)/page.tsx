@@ -1,6 +1,8 @@
 "use client";
 
+import DesktopOnlyScreen from "@/components/DesktopOnlyScreen";
 import { useAuth } from "@/context/AuthContext";
+import { useDesktopOnly } from "@/lib/useDesktopOnly";
 import { WandSparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -9,6 +11,8 @@ export default function LandingPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
+  const isDesktop = useDesktopOnly();
+
   useEffect(() => {
     if (loading) return;
 
@@ -16,6 +20,10 @@ export default function LandingPage() {
       router.replace("/dashboard");
     }
   }, [user, loading, router]);
+
+  if (!isDesktop) {
+    return <DesktopOnlyScreen />;
+  }
 
   if (loading || user) return null;
 

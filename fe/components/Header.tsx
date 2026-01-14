@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { useDesktopOnly } from "@/lib/useDesktopOnly";
 import Image from "next/image";
 
 interface HeaderProps {
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export default function Header({ onLogin, onSignup }: HeaderProps) {
   const { user } = useAuth();
+   const isDesktop = useDesktopOnly();
 
   return (
    <header className="sticky top-0 z-20 bg-[#EDFFFF] border-b border-gray-200 shadow-md">
@@ -23,11 +25,11 @@ export default function Header({ onLogin, onSignup }: HeaderProps) {
             className="mr-2"
           />
           <h1 className="text-xl font-bold text-[#197083] tracking-tight">
-            Talent Fit
+            TalentFit
           </h1>
         </div>
 
-        {!user && (
+        {!user && isDesktop && (
           <div className="flex items-center gap-3">
             {onSignup && (
               <button

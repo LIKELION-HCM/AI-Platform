@@ -68,7 +68,7 @@ export default function CompanyDashboard() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* <div className="overflow-x-auto">
               <table className="w-full table-fixed border-collapse">
                 <TableCols />
                 <thead className="bg-[#5ACFD6] text-gray-900 text-sm font-semibold">
@@ -81,14 +81,23 @@ export default function CompanyDashboard() {
                   </tr>
                 </thead>
               </table>
-            </div>
+            </div> */}
 
             <div
               className="overflow-y-auto"
-              style={{ maxHeight: "calc(100vh - 333px)" }}
+              style={{ maxHeight: "calc(100vh - 281px)" }}
             >
               <table className="w-full table-fixed border-collapse">
                 <TableCols />
+                <thead className="sticky top-0 z-10 bg-[#5ACFD6] text-gray-900 text-sm font-semibold">
+                  <tr>
+                    <th className="px-6 py-4 text-left">Date</th>
+                    <th className="px-6 py-4 text-left">Summary</th>
+                    <th className="px-6 py-4 text-left">Role</th>
+                    <th className="px-6 py-4 text-center">Match Score</th>
+                    <th className="px-6 py-4 text-center">Action</th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-gray-100">
                   {loading ? (
                     <TableSkeleton rows={6} />
@@ -118,7 +127,7 @@ export default function CompanyDashboard() {
                           className="hover:bg-gray-50 transition"
                         >
                           <td className="px-6 py-4 text-sm text-gray-700">
-                            {formatDate(scan.createdAt, "DD/MM/YY")}
+                            {formatDate(scan.createdAt, "MM/DD/YY")}
                           </td>
 
                           <td className="px-6 py-4">
@@ -194,10 +203,10 @@ function TableCols() {
   return (
     <colgroup>
       <col style={{ width: "120px" }} />
-      <col style={{ width: "calc(100% - 620px)" }}/>
-      <col style={{ width: "240px" }} />
+      <col style={{ width: "calc(100% - 120px - 400px - 200px - 120px)" }} />
+      <col style={{ width: "400px" }} />
       <col style={{ width: "140px" }} />
-      <col style={{ width: "120px" }} />
+      <col style={{ width: "200px" }} />
     </colgroup>
   );
 }

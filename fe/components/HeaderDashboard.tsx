@@ -46,7 +46,7 @@ export default function HeaderDashboard() {
             className="mr-2"
           />
           <h1 className="text-xl font-bold text-teal-700 tracking-tight">
-            Talent Fit
+            TalentFit
           </h1>
         </div>
 
