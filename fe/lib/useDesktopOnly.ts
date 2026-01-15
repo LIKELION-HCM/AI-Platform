@@ -2,18 +2,17 @@
 
 import { useEffect, useState } from "react";
 
+const MOBILE_REGEX =
+  /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+
 export function useDesktopOnly() {
   const [isDesktop, setIsDesktop] = useState(true);
 
   useEffect(() => {
-    const check = () => {
-      const width = window.innerWidth;
-      setIsDesktop(width >= 1024);
-    };
+    const ua = navigator.userAgent || "";
+    const isMobile = MOBILE_REGEX.test(ua);
 
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    setIsDesktop(!isMobile);
   }, []);
 
   return isDesktop;

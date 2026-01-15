@@ -16,10 +16,10 @@ export default function LandingPage() {
   useEffect(() => {
     if (loading) return;
 
-    if (user) {
+    if (user && isDesktop) {
       router.replace("/dashboard");
     }
-  }, [user, loading, router]);
+  }, [user, loading, isDesktop, router]);
 
   if (!isDesktop) {
     return <DesktopOnlyScreen />;

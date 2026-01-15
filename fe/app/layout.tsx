@@ -1,4 +1,3 @@
-import AuthGuard from "@/AuthGuard";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthUIProvider } from "@/context/AuthUIContext";
 import "@/lib/dayjs";
@@ -13,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "TalentFit - AI-Powered CV and JD Matching",
+  title: "Talent Fit - AI-Powered CV and JD Matching",
   description:
     "Upload your CV and Job Description to instantly see match score, gaps, and improvement insights.",
 };
@@ -27,9 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <AuthProvider>
-          <AuthUIProvider>
-            <AuthGuard>{children}</AuthGuard>
-          </AuthUIProvider>
+          <AuthUIProvider>{children}</AuthUIProvider>
         </AuthProvider>
       </body>
     </html>

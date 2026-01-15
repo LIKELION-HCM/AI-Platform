@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuthUI } from "@/context/AuthUIContext";
+import api from "@/lib/axios";
 import { toast } from "@/lib/useToast";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
@@ -22,8 +23,7 @@ export default function SignupForm() {
     setLoading(true);
 
     try {
-      // TODO: call signup API
-      // await api.post("/auth/signup", { email, password });
+      await api.post("/api/auth/register", { email, password });
       toast.success("Account created successfully");
     } catch {
       toast.error("Signup failed");
