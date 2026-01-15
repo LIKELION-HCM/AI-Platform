@@ -8,6 +8,7 @@ import ToastContainer from "@/components/ToastContainer";
 import api from "@/lib/axios";
 import { formatDate } from "@/lib/dayjs";
 import { mapScanItem } from "@/utils/mapCleanItem";
+import { verdictStyleMap } from "@/utils/verdictStyle";
 import TableSkeleton from "../TableSkeleton";
 
 export default function CompanyDashboard() {
@@ -113,6 +114,11 @@ export default function CompanyDashboard() {
                   ) : (
                     scans.map((scan) => {
                       const score = scan.data?.overall?.match_score ?? 0;
+                      const verdict =
+                        scan.data?.overall?.verdict || "Fair Match";
+                      const verdictStyle =
+                        verdictStyleMap[verdict] ||
+                        verdictStyleMap["Fair Match"];
                       const candidateName =
                         scan.data?.meta?.candidate_name || "Unknown";
                       const summary =
@@ -144,7 +150,9 @@ export default function CompanyDashboard() {
                           </td>
 
                           <td className="px-6 py-4 text-center">
-                            <span className="inline-block px-4 py-1.5 rounded-md text-sm font-bold bg-[#B4F1F1] text-gray-900">
+                            <span
+                              className={`inline-block px-4 py-1.5 rounded-md text-sm font-bold ${verdictStyle.bg} ${verdictStyle.text}`}
+                            >
                               {score}%
                             </span>
                           </td>

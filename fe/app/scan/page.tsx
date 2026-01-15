@@ -69,6 +69,7 @@ export default function ScanPage() {
 
   const [requestsUsed, setRequestsUsed] = useState<number | null>(null);
 
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [analysisDone, setAnalysisDone] = useState(false);
 
@@ -100,9 +101,14 @@ export default function ScanPage() {
       : REQUIRED_CV_FIELDS.every((k) => cvForm[k].trim());
 
   const isJdValid = jdMode === "upload" ? jds.length > 0 : !!jdText.trim();
-  const canSubmit = isCvValid && isJdValid && !loading && requestsLeft > 0;
+  const canSubmit = isCvValid && isJdValid && !loading;
 
   const onAnalyze = async () => {
+    if (requestsLeft <= 0) {
+      setShowLimitModal(true);
+      return;
+    }
+
     setCvErrors({});
 
     if (cvMode === "form") {
@@ -186,6 +192,32 @@ export default function ScanPage() {
       <HeaderDashboard />
       <ToastContainer />
       {loading && <ProgressPageLoader loading={loading} done={analysisDone} />}
+      {showLimitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl p-6 w-[420px] shadow-xl">
+            <h3 className="text-lg font-bold text-gray-800 mb-3">
+              Daily limit reached
+            </h3>
+
+            <p className="text-sm text-gray-600 mb-6">
+              You have used all <b>3 analysis requests</b> for today. Please
+              come back tomorrow.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="cursor-pointer px-4 py-2 rounded-lg bg-gray-200 text-gray-700"
+                onClick={() => {
+                  setShowLimitModal(false);
+                  router.push("/dashboard");
+                }}
+              >
+                Go to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="px-8 py-10 bg-[#EDFFFF] space-y-8 min-h-[calc(100vh-65px)]">
         <div className="max-w-8xl mx-auto space-y-8">
