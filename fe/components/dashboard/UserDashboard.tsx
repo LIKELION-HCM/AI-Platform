@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import ToastContainer from "@/components/ToastContainer";
 import api from "@/lib/axios";
 import { formatDate } from "@/lib/dayjs";
+import { cn } from "@/lib/utils";
 import { mapScanItem } from "@/utils/mapCleanItem";
 import { verdictStyleMap } from "@/utils/verdictStyle";
 import TableSkeleton from "../TableSkeleton";
@@ -151,7 +152,11 @@ export default function CompanyDashboard() {
 
                           <td className="px-6 py-4 text-center">
                             <span
-                              className={`inline-block px-4 py-1.5 rounded-md text-sm font-bold ${verdictStyle.bg} ${verdictStyle.text}`}
+                              className={cn(
+                                "inline-block px-4 py-1.5 rounded-md text-sm font-bold",
+                                verdictStyle.bg,
+                                verdictStyle.text
+                              )}
                             >
                               {score}%
                             </span>

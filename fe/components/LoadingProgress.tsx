@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -91,13 +92,11 @@ export default function ProgressPageLoader({
             return (
               <div
                 key={step}
-                className={`flex items-center gap-2 text-sm ${
-                  isDone
-                    ? "text-green-600"
-                    : isActive
-                    ? "text-blue-600"
-                    : "text-gray-400"
-                }`}
+                className={cn("flex items-center gap-2 text-sm", {
+                  "text-green-600": isDone,
+                  "text-blue-600": isActive,
+                  "text-gray-400": !isDone && !isActive,
+                })}
               >
                 {isDone ? (
                   <CheckCircle2 className="w-4 h-4" />

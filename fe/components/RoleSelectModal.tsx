@@ -2,6 +2,7 @@
 
 import api from "@/lib/axios";
 import { toast } from "@/lib/useToast";
+import { cn } from "@/lib/utils";
 import { Check, FileSearch, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import ToastContainer from "./ToastContainer";
@@ -68,11 +69,16 @@ export default function RoleSelectModal({ open, onDone }: Props) {
             <button
               disabled={loading}
               onClick={() => setRole("company")}
-              className={`relative p-8 rounded-2xl border-2 transition-all text-center ${
-                role === "company"
-                  ? "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105"
-                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
-              } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={cn(
+                "relative p-8 rounded-2xl border-2 transition-all text-center",
+                {
+                  "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105":
+                    role === "company",
+                  "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md":
+                    role !== "company",
+                },
+                loading ? "opacity-60 cursor-not-allowed" : ""
+              )}
             >
               {role === "company" && (
                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-8 h-8 bg-[#5ACFD6] rounded-full flex items-center justify-center shadow-md">
@@ -82,14 +88,19 @@ export default function RoleSelectModal({ open, onDone }: Props) {
 
               <div className="flex justify-center mb-4">
                 <div
-                  className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                    role === "company" ? "bg-teal-100" : "bg-gray-100"
-                  }`}
+                  className={cn(
+                    "w-16 h-16 rounded-full flex items-center justify-center",
+                    {
+                      "bg-teal-100": role === "company",
+                      "bg-gray-100": role !== "company",
+                    }
+                  )}
                 >
                   <FileSearch
-                    className={`w-8 h-8 ${
-                      role === "company" ? "text-teal-600" : "text-gray-600"
-                    }`}
+                    className={cn("w-8 h-8", {
+                      "text-teal-600": role === "company",
+                      "text-gray-600": role !== "company",
+                    })}
                   />
                 </div>
               </div>
@@ -107,11 +118,16 @@ export default function RoleSelectModal({ open, onDone }: Props) {
             <button
               disabled={loading}
               onClick={() => setRole("user")}
-              className={`relative p-8 rounded-2xl border-2 transition-all text-center ${
-                role === "user"
-                  ? "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105"
-                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
-              } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={cn(
+                "relative p-8 rounded-2xl border-2 transition-all text-center",
+                {
+                  "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105":
+                    role === "user",
+                  "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md":
+                    role !== "user",
+                },
+                loading ? "opacity-60 cursor-not-allowed" : ""
+              )}
             >
               {role === "user" && (
                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-8 h-8 bg-[#5ACFD6] rounded-full flex items-center justify-center shadow-md">
@@ -126,9 +142,10 @@ export default function RoleSelectModal({ open, onDone }: Props) {
                   }`}
                 >
                   <User
-                    className={`w-8 h-8 ${
-                      role === "user" ? "text-teal-600" : "text-gray-600"
-                    }`}
+                    className={cn("w-8 h-8", {
+                      "text-teal-600": role === "user",
+                      "text-gray-600": role !== "user",
+                    })}
                   />
                 </div>
               </div>
@@ -147,11 +164,15 @@ export default function RoleSelectModal({ open, onDone }: Props) {
           <button
             disabled={!role || loading}
             onClick={onConfirm}
-            className={`w-full h-14 rounded-full font-semibold text-base transition-all ${
-              role
-                ? "bg-[#FFB200] text-white hover:bg-yellow-600 shadow-lg hover:shadow-xl cursor-pointer"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={cn(
+              "w-full h-14 rounded-full font-semibold text-base transition-all",
+              {
+                "bg-[#FFB200] text-white hover:bg-yellow-600 shadow-lg hover:shadow-xl cursor-pointer":
+                  role,
+                "bg-gray-200 text-gray-400 cursor-not-allowed": !role,
+              },
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            )}
           >
             {loading ? "Saving..." : "Continue"}
           </button>

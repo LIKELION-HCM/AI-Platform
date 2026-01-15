@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Toast } from "@/types/toast";
 import { AlertCircle, CheckCircle, Info, X, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -57,15 +58,15 @@ export default function ToastItem({ toast, onRemove }: ToastItemProps) {
 
   return (
     <div
-      className={`flex items-start gap-3 p-4 rounded-lg border backdrop-blur-sm shadow-lg transition-all duration-300 ${
-        styles.bg
-      } ${
+      className={cn(
+        "flex items-start gap-3 p-4 rounded-lg border backdrop-blur-sm shadow-lg transition-all duration-300",
+        styles.bg,
         isExiting ? "opacity-0 translate-x-full" : "opacity-100 translate-x-0"
-      }`}
+      )}
       style={{ minWidth: "320px", maxWidth: "420px" }}
     >
       <div className="flex-shrink-0 mt-0.5">{styles.icon}</div>
-      <p className={`flex-1 text-sm ${styles.text} leading-relaxed`}>
+      <p className={cn("flex-1 text-sm leading-relaxed", styles.text)}>
         {toast.message}
       </p>
       <button

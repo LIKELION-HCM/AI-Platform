@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { verdictStyleMap } from "@/utils/verdictStyle";
 import CircularProgress from "./CircularProgress";
 
@@ -30,7 +31,11 @@ export default function OverallCard({
             </div>
             <div>
               <span
-                className={`inline-block px-4 py-2 text-sm font-semibold rounded-lg ${verdictStyle.bg} ${verdictStyle.text}`}
+                className={cn(
+                  "inline-block px-4 py-2 text-sm font-semibold rounded-lg",
+                  verdictStyle.bg,
+                  verdictStyle.text
+                )}
               >
                 {overall.verdict}
               </span>

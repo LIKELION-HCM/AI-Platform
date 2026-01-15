@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { apiClient } from "@/lib/apiClient";
 import api from "@/lib/axios";
 import { toast } from "@/lib/useToast";
+import { cn } from "@/lib/utils";
 import { buildCvTextFromForm } from "@/utils/buildCvText";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -104,11 +105,6 @@ export default function ScanPage() {
   const canSubmit = isCvValid && isJdValid && !loading;
 
   const onAnalyze = async () => {
-    if (requestsLeft <= 0) {
-      setShowLimitModal(true);
-      return;
-    }
-
     setCvErrors({});
 
     if (cvMode === "form") {
@@ -187,6 +183,12 @@ export default function ScanPage() {
     fetchCountToday();
   }, [user]);
 
+  useEffect(() => {
+    if (requestsLeft <= 0) {
+      setShowLimitModal(true);
+    }
+  }, [requestsLeft]);
+
   return (
     <>
       <HeaderDashboard />
@@ -194,7 +196,7 @@ export default function ScanPage() {
       {loading && <ProgressPageLoader loading={loading} done={analysisDone} />}
       {showLimitModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl p-6 w-[420px] shadow-xl">
+          <div className="bg-white rounded-xl p-6 w-[420px] shadow-xl -translate-y-1/2 animate-slide-in">
             <h3 className="text-lg font-bold text-gray-800 mb-3">
               Daily limit reached
             </h3>
@@ -234,11 +236,14 @@ export default function ScanPage() {
             <button
               disabled={!canSubmit}
               onClick={onAnalyze}
-              className={`px-6 py-3 rounded-lg font-semibold transition shadow-lg ${
-                canSubmit
-                  ? "bg-[#FFB200] hover:bg-yellow-600 text-white cursor-pointer"
-                  : "bg-[#969696] text-[#D9D9D9] cursor-not-allowed"
-              }`}
+              className={cn(
+                "px-6 py-3 rounded-lg font-semibold transition shadow-lg",
+                {
+                  "bg-[#FFB200] hover:bg-yellow-600 text-white cursor-pointer":
+                    canSubmit,
+                  "bg-[#969696] text-[#D9D9D9] cursor-not-allowed": !canSubmit,
+                }
+              )}
             >
               {loading ? "Analyzing..." : "Analyze CV–JD"}
             </button>
@@ -423,11 +428,13 @@ function Input({ label, value, placeholder, onChange, error }: any) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 rounded-lg border-2 transition focus:outline-none text-sm bg-[#FAFAFA] ${
-          error
-            ? "border-red-300 focus:border-red-400"
-            : "border-[#D2D0CE] focus:border-[#5ACFD6]"
-        }`}
+        className={cn(
+          "w-full px-3 py-2 rounded-lg border-2 transition focus:outline-none text-sm bg-[#FAFAFA]",
+          {
+            "border-red-300 focus:border-red-400": error,
+            "border-[#D2D0CE] focus:border-[#5ACFD6]": !error,
+          }
+        )}
       />
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
@@ -444,11 +451,13 @@ function Textarea({ label, value, placeholder, onChange, error }: any) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full min-h-[100px] px-3 py-2 rounded-lg border-2 transition focus:outline-none text-sm resize-none bg-[#FAFAFA] ${
-          error
-            ? "border-red-300 focus:border-red-400"
-            : "border-[#D2D0CE] focus:border-[#5ACFD6]"
-        }`}
+        className={cn(
+          "w-full min-h-[100px] px-3 py-2 rounded-lg border-2 transition focus:outline-none text-sm resize-none bg-[#FAFAFA]",
+          {
+            "border-red-300 focus:border-red-400": error,
+            "border-[#D2D0CE] focus:border-[#5ACFD6]": !error,
+          }
+        )}
       />
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
