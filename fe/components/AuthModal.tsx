@@ -2,9 +2,10 @@ import { useAuthUI } from "@/context/AuthUIContext";
 import { X } from "lucide-react";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
+import VerifyEmailModal from "./VerifyEmailModal";
 
 export default function AuthModal() {
-  const { authOpen, authMode, closeAuth } = useAuthUI();
+  const { authOpen, authMode, verifyEmail, closeAuth } = useAuthUI();
 
   if (!authOpen) return null;
 
@@ -23,7 +24,11 @@ export default function AuthModal() {
           <X className="w-5 h-5" />
         </button>
 
-        {authMode === "login" ? <LoginForm /> : <SignupForm />}
+        {authMode === "login" && <LoginForm />}
+        {authMode === "signup" && <SignupForm />}
+        {authMode === "verify-email" && (
+          <VerifyEmailModal email={verifyEmail} />
+        )}
       </div>
     </div>
   );

@@ -3,15 +3,12 @@
 import CompanyScanDetail from "@/components/scan/CompanyScanDetail";
 import UserScanDetail from "@/components/scan/UserScanDetail";
 import { useAuth } from "@/context/AuthContext";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function ScanDetailPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const params = useParams<{ id: string }>();
-
-  const scanId = params.id;
 
   useEffect(() => {
     if (!loading && !user) {

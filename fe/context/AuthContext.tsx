@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
 import api from "@/lib/axios";
+import { createContext, useContext, useEffect, useState } from "react";
 
 export type User = {
   id: string;
@@ -14,7 +14,8 @@ export type User = {
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  login: (token: string) => Promise<void>;
+  setTokenAndFetchUser: (token: string) => void;
+  refreshUser: () => Promise<void>;
   logout: () => void;
 };
 
@@ -29,9 +30,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(res.data);
   };
 
-  const login = async (token: string) => {
+  const refreshUser = async () => {
+    const res = await api.get<User>("/api/me");
+    setUser(res.data);
+  };
+
+  const setTokenAndFetchUser = (token: string) => {
     localStorage.setItem("access_token", token);
-    await fetchMe();
+    fetchMe().finally(() => setLoading(false));
   };
 
   const logout = () => {
@@ -48,12 +54,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     fetchMe()
-      .catch(() => logout())
+      .catch(logout)
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, setTokenAndFetchUser, refreshUser, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

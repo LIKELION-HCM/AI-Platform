@@ -2,13 +2,15 @@
 
 import { createContext, useContext, useState } from "react";
 
-type AuthMode = "login" | "signup";
+type AuthMode = "login" | "signup" | "verify-email";
 
 type AuthUIContextType = {
   authOpen: boolean;
   authMode: AuthMode;
+  verifyEmail?: string;
   openLogin: () => void;
   openSignup: () => void;
+  openVerifyEmail: (email: string) => void;
   closeAuth: () => void;
 };
 
@@ -17,12 +19,14 @@ const AuthUIContext = createContext<AuthUIContextType | null>(null);
 export function AuthUIProvider({ children }: { children: React.ReactNode }) {
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("login");
+  const [verifyEmail, setVerifyEmail] = useState<string | undefined>(undefined);
 
   return (
     <AuthUIContext.Provider
       value={{
         authOpen,
         authMode,
+        verifyEmail,
         openLogin: () => {
           setAuthMode("login");
           setAuthOpen(true);
@@ -31,7 +35,15 @@ export function AuthUIProvider({ children }: { children: React.ReactNode }) {
           setAuthMode("signup");
           setAuthOpen(true);
         },
-        closeAuth: () => setAuthOpen(false),
+        openVerifyEmail: (email: string) => {
+          setVerifyEmail(email);
+          setAuthMode("verify-email");
+          setAuthOpen(true);
+        },
+        closeAuth: () => {
+          setAuthOpen(false);
+          setVerifyEmail(undefined);
+        },
       }}
     >
       {children}

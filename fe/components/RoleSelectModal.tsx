@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 import { toast } from "@/lib/useToast";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,8 @@ type Props = {
 };
 
 export default function RoleSelectModal({ open, onDone }: Props) {
+  const { refreshUser } = useAuth();
+
   const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -35,6 +38,8 @@ export default function RoleSelectModal({ open, onDone }: Props) {
       await api.post("/api/onboarding/choose-type", {
         userType: role === "company" ? "COMPANY" : "USER",
       });
+
+      await refreshUser();
 
       toast.success("Signup successful");
 
@@ -70,7 +75,7 @@ export default function RoleSelectModal({ open, onDone }: Props) {
               disabled={loading}
               onClick={() => setRole("company")}
               className={cn(
-                "relative p-8 rounded-2xl border-2 transition-all text-center",
+                "relative p-8 rounded-2xl border-2 transition-all text-center cursor-pointer",
                 {
                   "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105":
                     role === "company",
@@ -119,7 +124,7 @@ export default function RoleSelectModal({ open, onDone }: Props) {
               disabled={loading}
               onClick={() => setRole("user")}
               className={cn(
-                "relative p-8 rounded-2xl border-2 transition-all text-center",
+                "relative p-8 rounded-2xl border-2 transition-all text-center cursor-pointer",
                 {
                   "border-[#5ACFD6] bg-teal-50 shadow-lg scale-105":
                     role === "user",
