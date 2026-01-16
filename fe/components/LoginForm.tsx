@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
 import { useAuthUI } from "@/context/AuthUIContext";
 import api from "@/lib/axios";
 import { toast } from "@/lib/useToast";
@@ -11,6 +12,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginForm() {
   const { openSignup } = useAuthUI();
+  const { setTokenAndFetchUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,7 +59,11 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      await api.post("/api/auth/login", { email, password });
+      const res = await api.post("/api/auth/login", { email, password });
+      const accessToken = res.data.accessToken;
+
+      setTokenAndFetchUser(accessToken);
+
       toast.success("Logged in successfully");
     } catch (err: any) {
       setServerError(
@@ -129,7 +135,7 @@ export default function LoginForm() {
                 setPasswordError(null);
                 setServerError(null);
               }}
-              className="w-full h-11 px-4 pr-11 rounded-lg border border-gray-300"
+              className="w-full h-11 px-4 pr-11 rounded-lg border border-gray-300 text-gray-900"
             />
             <button
               type="button"
