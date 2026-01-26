@@ -54,17 +54,8 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div
-          className="w-[500px] h-[500px] mx-auto cursor-pointer"
-          onMouseEnter={() => lottieRef.current?.play()}
-          onMouseLeave={() => lottieRef.current?.stop()}
-        >
-          <Lottie
-            lottieRef={lottieRef}
-            animationData={cvScan}
-            loop={false}
-            autoplay={false}
-          />
+        <div className="w-[450px] h-[450px] mx-auto cursor-pointer">
+          <Lottie lottieRef={lottieRef} animationData={cvScan} loop autoplay />
         </div>
       </div>
     </section>
