@@ -3,13 +3,17 @@
 import DesktopOnlyScreen from "@/components/DesktopOnlyScreen";
 import { useAuth } from "@/context/AuthContext";
 import { useDesktopOnly } from "@/lib/useDesktopOnly";
+import cvScan from "@/public/lotties/cv-scan.json";
+import Lottie from "lottie-react";
 import { WandSparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+
+  const lottieRef = useRef<any>(null);
 
   const isDesktop = useDesktopOnly();
 
@@ -28,12 +32,12 @@ export default function LandingPage() {
   if (loading || user) return null;
 
   return (
-    <>
-      <section className="relative overflow-hidden min-h-[calc(100vh-65px)] bg-[#EDFFFF] flex pt-[11%] justify-center px-6 py-20">
-        <div className="absolute right-[-187px] -top-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
-        <div className="absolute left-[-187px] -bottom-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
+    <section className="relative overflow-hidden min-h-[calc(100vh-65px)] bg-[#EDFFFF] flex justify-center px-6 py-20">
+      <div className="absolute right-[-187px] -top-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
+      <div className="absolute left-[-187px] -bottom-[187px] w-[504px] h-[504px] rounded-full bg-[#5ACFD6] blur-[100px]" />
 
-        <div className="relative z-10 max-w-6xl mx-auto text-center">
+      <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-2 gap-20 mt-10">
+        <div>
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full text-sm text-gray-700 mb-10 shadow-sm">
             AI-Powered CV-JD Matching
             <WandSparkles className="w-4 h-4 text-gray-600" />
@@ -43,19 +47,26 @@ export default function LandingPage() {
             Resume Fit in <span className="text-[#F7AA00] italic">Seconds</span>
           </h1>
 
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-600 max-w-xl leading-relaxed">
             Upload your CV and Job Description to instantly see
             <br />
             match score, gaps, and improvement insights
           </p>
         </div>
-      </section>
 
-      {/* <footer className="relative bg-[#EDFFFF] border-t border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-4 text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} Resume Fit. All rights reserved.
+        <div
+          className="w-[500px] h-[500px] mx-auto cursor-pointer"
+          onMouseEnter={() => lottieRef.current?.play()}
+          onMouseLeave={() => lottieRef.current?.stop()}
+        >
+          <Lottie
+            lottieRef={lottieRef}
+            animationData={cvScan}
+            loop={false}
+            autoplay={false}
+          />
         </div>
-      </footer> */}
-    </>
+      </div>
+    </section>
   );
 }
