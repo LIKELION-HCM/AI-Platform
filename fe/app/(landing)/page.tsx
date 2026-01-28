@@ -7,13 +7,11 @@ import cvScan from "@/public/lotties/cv-scan.json";
 import Lottie from "lottie-react";
 import { WandSparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-
-  const lottieRef = useRef<any>(null);
 
   const isDesktop = useDesktopOnly();
 
@@ -55,7 +53,7 @@ export default function LandingPage() {
         </div>
 
         <div className="w-[450px] h-[450px] mx-auto cursor-pointer">
-          <Lottie lottieRef={lottieRef} animationData={cvScan} loop autoplay />
+          <Lottie animationData={cvScan} loop autoplay renderer="svg" />
         </div>
       </div>
     </section>
